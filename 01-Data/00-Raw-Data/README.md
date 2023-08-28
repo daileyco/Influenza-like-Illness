@@ -4,6 +4,7 @@ Flu data
 
 Population data
 - https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html
+- https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html
 - Downloaded by author Cody Dailey
 
 Commuting data
