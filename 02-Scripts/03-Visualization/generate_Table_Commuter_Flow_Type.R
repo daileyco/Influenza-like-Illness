@@ -1,0 +1,24 @@
+
+
+
+
+
+
+
+
+acs1115 %>% group_by(`State Residence`, flow.type) %>% summarise(n=sum(`Workers in Commuting Flow`)) %>% ungroup() %>% tidyr::pivot_wider(names_from = flow.type, values_from = n) %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
