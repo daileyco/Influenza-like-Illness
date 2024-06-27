@@ -59,21 +59,24 @@ source("./02-Scripts/01-Data-Wrangling/process_Data_Population.R", echo = T)
 
 ### Mobility Data
 
-Worker commuting flows from the American Community Survey for both 2011-2015 and 2016-2020 are downloaded as excel spreadsheets, though not in a tidy data format (e.g., there is extra fluff at the top and bottom of the excel tables). The ACS data essentially contain four main variables: a location of residence, a location of work, a point estimate of the number of workers commuting between the two locations, and an estimate of uncertainty (i.e., margin of error) for the point estimate. These data are aggregated to the state level to align with the ILI data. In aggregating the data to the state level, the measure of uncertainty is lost; is there a simple way to account for each margin of error in aggregate data? For now, we will focus on the locations and the point estimate and potentially return to the uncertainty later for sensitivity analyses.   
-  
-The process script is simple enough as it just loads the data, categorizes the type of commuter flow (intracounty, intrastate, interstate, international), aggregates totals to the state level, combines the data from both time ranges, and then saves an .rds file. Additionally, the data are expanded to have entries for all possible combinations of locations; this allows me to note the "unobserved" flows.  
+<!-- Worker commuting flows from the American Community Survey for both 2011-2015 and 2016-2020 are downloaded as excel spreadsheets, though not in a tidy data format (e.g., there is extra fluff at the top and bottom of the excel tables). The ACS data essentially contain four main variables: a location of residence, a location of work, a point estimate of the number of workers commuting between the two locations, and an estimate of uncertainty (i.e., margin of error) for the point estimate. These data are aggregated to the state level to align with the ILI data. In aggregating the data to the state level, the measure of uncertainty is lost; is there a simple way to account for each margin of error in aggregate data? For now, we will focus on the locations and the point estimate and potentially return to the uncertainty later for sensitivity analyses.    -->
 
-The script is sourced using the following code:
+<!-- The process script is simple enough as it just loads the data, categorizes the type of commuter flow (intracounty, intrastate, interstate, international), aggregates totals to the state level, combines the data from both time ranges, and then saves an .rds file. Additionally, the data are expanded to have entries for all possible combinations of locations; this allows me to note the "unobserved" flows.   -->
+
+<!-- The script is sourced using the following code: -->
+
+<!-- ```{r} -->
+<!-- source("./02-Scripts/01-Data-Wrangling/process_Data_ACS.R", echo = T) -->
+<!-- ``` -->
+
+
+For ease and to not duplicate code, I am borrowing the clean data from the previous analysis (daileyco/Mobility-Models). This commuting data has the commuting flows between counties as well as the distances of each flow already computed. So, this data is merged with another dataset from the results of previous analysis. The results include the distance thresholds that were determined from gravity model fits. The county-to-county flow distances are compared to the distance thresholds for each region to categorize flows as internal (within resident county), short distance (less than or equal to distance threshold), and long distance (greater than distance threshold). These categories are then used to summarize the data at the state level by simple summation. This leaves a dataset with two entries for each state (two time periods) and quantities of the number of commutes of each "flow type" (according to distances). Following, these quantities are transformed in two ways. First, I take simple ratios of the total short distance commutes to the total internal commutes for each state. Similarly, I compute a ratio of the total long distance commutes to the total short distance commutes. These ratios I will use as predictors / independent variables. 
+
+
 
 ```{r}
-source("./02-Scripts/01-Data-Wrangling/process_Data_ACS.R", echo = T)
+source("./02-Scripts/01-Data-Wrangling/process_Data_ACS_Ratios_Aggregate.R", echo=T)
 ```
-
-
-
-
-
-
 
 
 
@@ -121,21 +124,21 @@ source("./02-Scripts/01-Data-Wrangling/process_Data_Population_Align_Season.R", 
 
 ### Commuting
 
-The commuting data contains information about the commuter flow volume or flux between two locations. In this way, it it really data on the connectedness / adjacency of location pairs, a network. In this format, it is not easily combined or aligned with the ILI data. Sure there may be some network analyses or compartmental modeling analyses that we could perform to use the data in its original format, but, here, I only want to do some simple analyses relating the ILI epidemic intensity. A rudimentary approach could be to include all origins and destinations and their flows as separate variables or features, e.g., number of incoming commuters from Georgia. However, this may present a few problems: (1) there will be many implicit "zeros" where location pairs have no commuters; (2) there will be many many variables (52 incoming + 52 outgoing?); (3) this would not allow for a more "generalized" interpretation as all features are specific to single locations. So, another approach is desirable. The simplest way that I can think to initially approach this analysis is to aggregate the commuter flows in three ways: (1) internal commutes where origins and destinations are the same; (2) all incoming / inflow commuters for a specific destination location; (3) all outgoing / outflow commuters for a specific origin location. In this way, we will have features corresponding to local population mixing (internal), potential importations (incoming), and potential "foreign" exposures (outgoing). This is still rather rudimentary, but it will work for this preliminary analysis.  
-  
-One last thing to consider is the scale of the data. As I am hoping to analyze this data alongside the population size data, the counts of commuter volume may be too correlated with the population size; that is, large counts of population size will correspond to large numbers of commuters. To remove this relationship, I need to account for the population sizes. Another simple approach may be to compute the proportions of commuters for each category. Though, this may force us to drop one of the three categories. (idk how to best describe this loss of a degree of freedom, linear combination; if they're not internal or outgoing, then they must be incoming?) So, another simple approach could be to calculate the proportions of commuters that are incoming (foreign, bad word choice but it works) or outgoing (expats, bad word choice but it works). Then, I could treat the internal commuters a little differently. This is a little challenging to decide on. My initial thoughts were to just to calculate the proportion of the total population that is an internal commuter. Part of me wants to consider the number of counties as well, though. 
+<!-- The commuting data contains information about the commuter flow volume or flux between two locations. In this way, it it really data on the connectedness / adjacency of location pairs, a network. In this format, it is not easily combined or aligned with the ILI data. Sure there may be some network analyses or compartmental modeling analyses that we could perform to use the data in its original format, but, here, I only want to do some simple analyses relating the ILI epidemic intensity. A rudimentary approach could be to include all origins and destinations and their flows as separate variables or features, e.g., number of incoming commuters from Georgia. However, this may present a few problems: (1) there will be many implicit "zeros" where location pairs have no commuters; (2) there will be many many variables (52 incoming + 52 outgoing?); (3) this would not allow for a more "generalized" interpretation as all features are specific to single locations. So, another approach is desirable. The simplest way that I can think to initially approach this analysis is to aggregate the commuter flows in three ways: (1) internal commutes where origins and destinations are the same; (2) all incoming / inflow commuters for a specific destination location; (3) all outgoing / outflow commuters for a specific origin location. In this way, we will have features corresponding to local population mixing (internal), potential importations (incoming), and potential "foreign" exposures (outgoing). This is still rather rudimentary, but it will work for this preliminary analysis.   -->
 
-I went back to the original processing script where the data were aggregated to the state level and created a variable categorizing the flow type as either intracounty, intrastate (but not intracounty), interstate, and international. With this new level of aggregation, I can now calculate the proportions of workers in a focal resident location who are (1) outgoing (expats), (2) incoming (foreign), and (3) commuting within the state between counties. I realized that it may be preferable to exclude the workers who work in the same county as they reside and having an additional category would allow me to use the simple proportions. Though, this may introduce a bias according to the number of counties and their relative size (Eastern US has more and smaller counties than Western US). I'm just going to rock with this as is for now and think more on how to control later (maybe somehow take the distance of the flow into consideration).
-  
-The following script aggregates the commuting data:  
+<!-- One last thing to consider is the scale of the data. As I am hoping to analyze this data alongside the population size data, the counts of commuter volume may be too correlated with the population size; that is, large counts of population size will correspond to large numbers of commuters. To remove this relationship, I need to account for the population sizes. Another simple approach may be to compute the proportions of commuters for each category. Though, this may force us to drop one of the three categories. (idk how to best describe this loss of a degree of freedom, linear combination; if they're not internal or outgoing, then they must be incoming?) So, another simple approach could be to calculate the proportions of commuters that are incoming (foreign, bad word choice but it works) or outgoing (expats, bad word choice but it works). Then, I could treat the internal commuters a little differently. This is a little challenging to decide on. My initial thoughts were to just to calculate the proportion of the total population that is an internal commuter. Part of me wants to consider the number of counties as well, though.  -->
 
-```{r}
-source("./02-Scripts/01-Data-Wrangling/process_Data_Population_Align_Season.R", echo=TRUE)
-```
+<!-- I went back to the original processing script where the data were aggregated to the state level and created a variable categorizing the flow type as either intracounty, intrastate (but not intracounty), interstate, and international. With this new level of aggregation, I can now calculate the proportions of workers in a focal resident location who are (1) outgoing (expats), (2) incoming (foreign), and (3) commuting within the state between counties. I realized that it may be preferable to exclude the workers who work in the same county as they reside and having an additional category would allow me to use the simple proportions. Though, this may introduce a bias according to the number of counties and their relative size (Eastern US has more and smaller counties than Western US). I'm just going to rock with this as is for now and think more on how to control later (maybe somehow take the distance of the flow into consideration). -->
+
+<!-- The following script aggregates the commuting data:   -->
+
+<!-- ```{r} -->
+<!-- source("./02-Scripts/01-Data-Wrangling/process_Data_ACS_Aggregate_Flows.R", echo=TRUE) -->
+<!-- ``` -->
 
 
 
-Maybe in the future, I can bridge the gap between the two aforementioned approaches, such as with features corresponding to the specific flows within and among different regions. 
+<!-- Maybe in the future, I can bridge the gap between the two aforementioned approaches, such as with features corresponding to the specific flows within and among different regions.  -->
 
 
 ## Finalize Dataset
@@ -183,6 +186,8 @@ source("./02-Scripts/03-Visualization/generate_Table_Epidemic_Intensities.R")
 ##### Epidemic Intensity Scatter Plots against Covariates
 
 The following script creates a figure of four scatter plots, epidemic intensity vs population size, proportion of commutes that are international, interstate, and intrastate but between counties: 
+
+edited to proportions of internal (intracounty), short distance, and long distance, with added plots for ratios of short:internal and long:short.
 
 
 ```{r}

@@ -11,7 +11,7 @@ ili.seasonal.distributions <- ili %>%
   filter(!is.na(week) & !region%in%c("Commonwealth of the Northern Mariana Islands", "Virgin Islands")) %>%
   mutate(region = droplevels(region), 
          year = year(week_start), #weird entries/errors for year values with week start at end of december (e.g., 12/30/12); maybe cuz epiweek one?
-         season = ifelse(week<40, 
+         season = ifelse(week<40 & month(week_start)!=12, 
                          paste0(year-1, "-", year), 
                          paste0(year, "-", year+1)
                          ))
@@ -21,7 +21,7 @@ scaffold <- expand.grid(region = unique(ili.seasonal.distributions$region),
                         week_start = unique(ili.seasonal.distributions$week_start)) %>%
   mutate(week = epiweek(week_start), 
          year = year(week_start)) %>%
-  mutate(season = ifelse(week<40, 
+  mutate(season = ifelse(week<40 & month(week_start)!=12, 
                          paste0(year-1, "-", year), 
                          paste0(year, "-", year+1)))
 
@@ -54,7 +54,37 @@ ili.seasonal.distributions <- full_join(scaffold,
 
 
 ili.seasonal.distributions <- ili.seasonal.distributions %>%
-  filter(!season%in%c("2010-2011", "2020-2021")) %>% 
+  filter(!season%in%c("2010-2011", "2020-2021")) %>%
+  group_by(season, region) %>%
+  mutate(n = n()) %>%
+  ungroup()
+
+
+
+#### got to split week 53
+
+
+ili.seasonal.distributions <- bind_rows(ili.seasonal.distributions %>% filter(n!=53 | (n==53 & !week%in%c(52,53,1))), 
+                                        
+                                        ili.seasonal.distributions %>% filter(n==53 & week%in%c(52,53,1)) %>%
+                                          group_by(region) %>%
+                                          mutate(ilitotal53 = ilitotal[which(week==53)]) %>% 
+                                          ungroup() %>%
+                                          filter(week!=53) %>%
+                                          mutate(ilitotal = ilitotal + ilitotal53/2)
+                                        ) %>%
+  arrange(week_start) %>% 
+  group_by(season, region) %>%
+  mutate(n2 = n()) %>%
+  ungroup()
+
+
+
+
+
+
+
+ili.seasonal.distributions <- ili.seasonal.distributions %>% 
   group_by(season, region) %>%
   mutate(ili.cumulative = sum(ilitotal),
          tp.cumulative = sum(total_patients),
@@ -70,16 +100,21 @@ ili.seasonal.distributions <- ili.seasonal.distributions %>%
 ili.ei.units <- ili.seasonal.distributions %>% 
   group_by(season, region) %>%
   mutate(ei.unit = p.cili * log(p.cili)) %>% 
-  mutate(ei.unit = ifelse(ilitotal==0 | total_patients==0, 0, ei.unit)) %>%
+  mutate(ei.unit = ifelse(ilitotal==0 | total_patients==0, 0, ei.unit), 
+         maxili = ilitotal==max(ilitotal),
+         peak_wk = week[which(maxili)][1]) %>%
   ungroup()
 
 
 ili.ei <- ili.ei.units %>% 
   group_by(season, region) %>%
-  summarise(ei = (-1*sum(ei.unit))^-1) %>%
+  summarise(ei = (-1*sum(ei.unit))^-1, 
+            peak_wk = unique(peak_wk)) %>%
   ungroup() %>%
+  # mutate(ei.unscaled = ei) %>%
   mutate(ei = ei - min(ei, na.rm = TRUE)) %>%
-  mutate(ei = ei / max(ei, na.rm = TRUE))
+  mutate(ei = ei / max(ei, na.rm = TRUE)) %>% 
+  mutate(peak_wk = ifelse(peak_wk>=40, peak_wk-52, peak_wk))
 
 
 ili <- ili.ei.units %>%
