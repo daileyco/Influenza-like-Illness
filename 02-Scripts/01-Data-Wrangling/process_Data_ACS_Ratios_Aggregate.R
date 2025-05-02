@@ -59,6 +59,7 @@ com <- od %>%
   pivot_wider(names_from = flow_type, values_from = `Workers in Commuting Flow`) %>%
   mutate(ratio.si = `Short Distance`/Internal,
          ratio.ls = `Long Distance`/`Short Distance`, 
+         ratio.li = `Long Distance`/Internal,
          across(c(Internal, `Short Distance`, `Long Distance`), ~.x/Total.Workers*100, .names = "{.col}_prop")) %>%
   full_join(., 
             com.meandist, 
@@ -66,13 +67,32 @@ com <- od %>%
 
 
 
-
+net <- full_join(od%>%
+                   group_by(fips.origin, period)%>%
+                   summarise(total.out = sum(`Workers in Commuting Flow`), 
+                             total.outsd = sum(`Workers in Commuting Flow`[which(flow_type%in%c("Internal", "Short Distance"))])) %>% 
+                   ungroup() %>% 
+                   rename(fips = fips.origin), 
+                 od%>%
+                   group_by(fips.destination,period)%>%
+                   summarise(total.in = sum(`Workers in Commuting Flow`), 
+                             total.insd = sum(`Workers in Commuting Flow`[which(flow_type%in%c("Internal", "Short Distance"))])) %>% 
+                   ungroup() %>% 
+                   rename(fips = fips.destination), 
+                 by = c("fips","period")) %>% 
+  mutate(across(where(is.numeric), ~.x/5)) %>%
+  full_join(., 
+            od%>%
+              filter(!duplicated(fips.origin))%>%
+              select(fips=fips.origin,`State FIPS Residence`,`State Residence`), 
+            by = c("fips"))
 
 
 
 ## save
+save(od, file = "./01-Data/02-Analytic-Data/countycommutescat.rds")
 save(com, file = "./01-Data/02-Analytic-Data/commutes.rds")
-
+save(net, file = "./01-Data/02-Analytic-Data/netcommutes.rds")
 
 
 ## clean environment

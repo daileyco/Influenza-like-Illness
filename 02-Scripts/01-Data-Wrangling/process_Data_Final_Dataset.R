@@ -17,7 +17,8 @@ library(dplyr)
 # one to one merge
 ei.df <- full_join(ili.ei, 
                    pop.seasonal %>% 
-                     select(-year), 
+                     # select(-year)
+                     select(-STATE,-county.pop.var,-county.popday.var,-county.popdaysd.var,-matches("daysd")), 
                    by = c("region", "season"))
 
 

@@ -13,13 +13,20 @@ library(dplyr)
 
 ## setup
 
-these <- c(3:5,8:ncol(ei.df))
+ei.df <- ei.df %>%
+  rename(state_area_km2_land = state_area_km2) %>% 
+  mutate(state_area_km2 = state_area_km2_land + state_area_km2_water)
+
+
+
+
+# these <- c(3:5,8:ncol(ei.df))
+these <- which(!names(ei.df)%in%c("season", "region", "period", "State FIPS Residence"))
 
 ## plot
 
-
-# svg(filename = "./03-Output/02-Figures/epidemic_intensity_scatters.svg", width = 16, height = 9, pointsize = 10)
-png(filename = "./03-Output/02-Figures/histogram%03d.png", width = 8, height = 4.5, pointsize = 10, units = "in", res = 300)
+if(!dir.exists("./03-Output/02-Figures/histograms")){dir.create("./03-Output/02-Figures/histograms")}
+png(filename = "./03-Output/02-Figures/histograms/histogram%03d.png", width = 8, height = 4.5, pointsize = 10, units = "in", res = 300)
 
 par(mfrow = c(2,2))
   
@@ -42,13 +49,13 @@ dev.off()
 
 
 
-these <- c(4:5,8:ncol(ei.df))
+these <- which(!names(ei.df)%in%c("season", "region", "ei", "period", "State FIPS Residence"))
 
 ## plot
 
+if(!dir.exists("./03-Output/02-Figures/scatters")){dir.create("./03-Output/02-Figures/scatters")}
 
-# svg(filename = "./03-Output/02-Figures/epidemic_intensity_scatters.svg", width = 16, height = 9, pointsize = 10)
-png(filename = "./03-Output/02-Figures/scatter%03d.png", width = 5, height = 5, pointsize = 10, units = "in", res = 300)
+png(filename = "./03-Output/02-Figures/scatters/scatter%03d.png", width = 5, height = 5, pointsize = 10, units = "in", res = 300)
 
 # par(mfrow = c(2,2))
 
@@ -75,10 +82,32 @@ dev.off()
 
 
 ei.df <- ei.df %>%
-  mutate(across(c(ei,ratio.si), ~sqrt(.x)), 
-         across(c(), ~sqrt(sqrt(.x))), 
-         across(c(population, 
-                  ratio.ls, 
+  mutate(across(c(ei), ~sqrt(.x)), 
+         across(c(ratio.si,
+                  ratio.ls,
+                  ratio.li
+                  # , 
+                  # state.crowding.dailychange,
+                  # state.patchiness.dailychange
+                  ), ~sqrt(sqrt(.x))), 
+         across(c(state.crowding.dailychange, 
+                  state.patchiness.dailychange, 
+                  state.crowding.dailychangeratio, 
+                  state.patchiness.dailychangeratio), 
+                ~((.x-min(.x))/(max(.x-min(.x))))^(1/4)),
+         across(c(county.pop.mean,
+                  county.popday.mean,
+                  population, 
+                  populationday,
+                  state.crowding,
+                  state.patchiness, 
+                  
+                  state.crowding.day,
+                  state.patchiness.day,  
+                  
+                  # state.crowding.dailychangeratio,
+                  # state.patchiness.dailychangeratio,
+                  
                   Total.Workers, 
                   Internal, 
                   `Short Distance`, 
@@ -87,6 +116,7 @@ ei.df <- ei.df %>%
                   distance_mean_km_nozeros, 
                   county_area_km2_mean, 
                   state_area_km2,
+                  state_area_km2_land,
                   state_area_km2_water,
                   pop_density, 
                   pop_density2), ~log(.x)))
@@ -96,14 +126,13 @@ ei.df <- ei.df %>%
 ## scatters
 
 
-
-these <- c(4:5,8:ncol(ei.df))
+these <- which(!names(ei.df)%in%c("season", "region", "ei", "period", "State FIPS Residence"))
 
 ## plot
 
 
-# svg(filename = "./03-Output/02-Figures/epidemic_intensity_scatters.svg", width = 16, height = 9, pointsize = 10)
-png(filename = "./03-Output/02-Figures/scatter_transformed%03d.png", width = 5, height = 5, pointsize = 10, units = "in", res = 300)
+if(!dir.exists("./03-Output/02-Figures/scatters/transformed")){dir.create("./03-Output/02-Figures/scatters/transformed")}
+png(filename = "./03-Output/02-Figures/scatters/transformed/scatter_transformed%03d.png", width = 5, height = 5, pointsize = 10, units = "in", res = 300)
 
 # par(mfrow = c(2,2))
 

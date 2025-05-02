@@ -20,10 +20,29 @@ library(lme4)
 ei.df <- ei.df %>%
   rename(state_area_km2_land = state_area_km2) %>% 
   mutate(state_area_km2 = state_area_km2_land + state_area_km2_water) %>%
-  mutate(across(c(ei,ratio.si), ~sqrt(.x)), 
-         across(c(), ~sqrt(sqrt(.x))), 
-         across(c(population, 
-                  ratio.ls, 
+  mutate(across(c(ei), ~sqrt(.x)), 
+         across(c(ratio.si,
+                  ratio.ls,
+                  ratio.li
+                  # , 
+                  # state.crowding.dailychange,
+                  # state.patchiness.dailychange
+         ), ~sqrt(sqrt(.x))), 
+         across(c(state.crowding.dailychange, 
+                  state.patchiness.dailychange, 
+                  state.crowding.dailychangeratio, 
+                  state.patchiness.dailychangeratio), 
+                ~((.x-min(.x))/(max(.x-min(.x))))^(1/4)),
+         across(c(county.pop.mean, 
+                  county.popday.mean,
+                  population, 
+                  populationday,
+                  state.crowding,
+                  state.patchiness, 
+                  state.crowding.day,
+                  state.patchiness.day,  
+                  # state.crowding.dailychangeratio,
+                  # state.patchiness.dailychangeratio,
                   Total.Workers, 
                   Internal, 
                   `Short Distance`, 
@@ -36,9 +55,23 @@ ei.df <- ei.df %>%
                   state_area_km2_water,
                   pop_density, 
                   pop_density2), ~log(.x))) %>%
+  
+  
   mutate(across(c(ratio.si, 
-                  ratio.ls, 
+                  ratio.ls,
+                  ratio.li,
+                  state.crowding.dailychange,
+                  state.patchiness.dailychange, 
+                  county.pop.mean,
+                  county.popday.mean,
                   population, 
+                  populationday,
+                  state.crowding,
+                  state.patchiness,
+                  state.crowding.day,
+                  state.patchiness.day,
+                  state.crowding.dailychangeratio,
+                  state.patchiness.dailychangeratio,
                   Total.Workers, 
                   Internal, 
                   `Short Distance`, 
@@ -54,7 +87,6 @@ ei.df <- ei.df %>%
                   state_area_km2_water, 
                   pop_density, 
                   pop_density2), ~c(scale(.x, center = TRUE, scale = TRUE)), .names = "{.col}"))
-
 
 
 
@@ -80,14 +112,21 @@ dev.off()
 
 
 
-myvars <- names(ei.df)[c(4,19,23:24,20,25,21:22,8,17,18,9,14,10,15,11,16,12:13)]
-# dput(myvars)
-# c("peak_wk", "county_count", "pop_density", "pop_density2", "county_area_km2_mean", 
-#   "state_area_km2", "state_area_km2_land", "state_area_km2_water", 
-#   "Total.Workers", "distance_mean_km", "distance_mean_km_nozeros", 
-#   "Internal", "Internal_prop", "Short Distance", "Short Distance_prop", 
-#   "Long Distance", "Long Distance_prop", "ratio.si", "ratio.ls"
-# )
+myvars <- c("peak_wk", 
+            "pop_density", "pop_density2", 
+            "county_count", "county_area_km2_mean", 
+            "county.pop.mean", "county.popday.mean",
+            "state.crowding", "state.patchiness",
+            "state.crowding.day", "state.patchiness.day",
+            "state.crowding.dailychange", "state.patchiness.dailychange",
+            "state.crowding.dailychangeratio", "state.patchiness.dailychangeratio",
+            "state_area_km2", "state_area_km2_land", "state_area_km2_water",
+            "Total.Workers", "distance_mean_km", "distance_mean_km_nozeros",
+            "Internal", "Internal_prop", "Short Distance", "Short Distance_prop",
+            "Long Distance", "Long Distance_prop", 
+            "ratio.si", "ratio.ls", "ratio.li"
+)
+
 
 
 
@@ -99,7 +138,7 @@ myvars <- names(ei.df)[c(4,19,23:24,20,25,21:22,8,17,18,9,14,10,15,11,16,12:13)]
 # cat(dput(paste0("fit",
 #                 1:length(myvars),
 #                 " <- lmer(ei~(1|region)+(1|season)+population+",
-#                 myvars,
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
 #                 ", data = ei.df)\n")))
 
 
@@ -108,54 +147,81 @@ myvars <- names(ei.df)[c(4,19,23:24,20,25,21:22,8,17,18,9,14,10,15,11,16,12:13)]
 # cat(dput(paste0("fit",
 #                 1:length(myvars),
 #                 " <- lmer(ei~(1|region)+(1|season)+population+",
-#                 myvars,
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
 #                 "+I((",
-#                 myvars,
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
 #                 ")^2), data = ei.df)\n")))
+
+
+
+
+# cubic
+cat(dput(paste0("fit",
+                1:length(myvars),
+                " <- lmer(ei~(1|region)+(1|season)+population+",
+                ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+                "+I((",
+                ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+                ")^2)",
+                "+I((",
+                ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+                ")^3), data = ei.df)\n")))
+
 {
-fit1 <- lmer(ei~(1|region)+(1|season)+population+peak_wk+I((peak_wk)^2), data = ei.df)
-  
-fit2 <- lmer(ei~(1|region)+(1|season)+population+county_count+I((county_count)^2), data = ei.df)
-
-fit3 <- lmer(ei~(1|region)+(1|season)+population+pop_density+I((pop_density)^2), data = ei.df)
-fit4 <- lmer(ei~(1|region)+(1|season)+population+pop_density2+I((pop_density2)^2), data = ei.df)
-
-fit5 <- lmer(ei~(1|region)+(1|season)+population+county_area_km2_mean+I((county_area_km2_mean)^2), data = ei.df)
-
-fit6 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2+I((state_area_km2)^2), data = ei.df)
-fit7 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2_land+I((state_area_km2_land)^2), data = ei.df)
-fit8 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2_water+I((state_area_km2_water)^2), data = ei.df)
-
-fit9 <- lmer(ei~(1|region)+(1|season)+population+Total.Workers+I((Total.Workers)^2), data = ei.df)
-
-fit10 <- lmer(ei~(1|region)+(1|season)+population+distance_mean_km+I((distance_mean_km)^2), data = ei.df)
-fit11 <- lmer(ei~(1|region)+(1|season)+population+distance_mean_km_nozeros+I((distance_mean_km_nozeros)^2), data = ei.df)
-
-fit12 <- lmer(ei~(1|region)+(1|season)+population+Internal+I((Internal)^2), data = ei.df)
-fit13 <- lmer(ei~(1|region)+(1|season)+population+Internal_prop+I((Internal_prop)^2), data = ei.df)
-
-fit14 <- lmer(ei~(1|region)+(1|season)+population+`Short Distance`+I((`Short Distance`)^2), data = ei.df)
-fit15 <- lmer(ei~(1|region)+(1|season)+population+`Short Distance_prop`+I((`Short Distance_prop`)^2), data = ei.df)
-
-fit16 <- lmer(ei~(1|region)+(1|season)+population+`Long Distance`+I((`Long Distance`)^2), data = ei.df)
-fit17 <- lmer(ei~(1|region)+(1|season)+population+`Long Distance_prop`+I((`Long Distance_prop`)^2), data = ei.df)
-
-fit18 <- lmer(ei~(1|region)+(1|season)+population+ratio.si+I((ratio.si)^2), data = ei.df)
-fit19 <- lmer(ei~(1|region)+(1|season)+population+ratio.ls+I((ratio.ls)^2), data = ei.df)
+  fit1 <- lmer(ei~(1|region)+(1|season)+population+peak_wk+I((peak_wk)^2)+I((peak_wk)^3), data = ei.df)
+  fit2 <- lmer(ei~(1|region)+(1|season)+population+pop_density+I((pop_density)^2)+I((pop_density)^3), data = ei.df)
+  fit3 <- lmer(ei~(1|region)+(1|season)+population+pop_density2+I((pop_density2)^2)+I((pop_density2)^3), data = ei.df)
+  fit4 <- lmer(ei~(1|region)+(1|season)+population+county_count+I((county_count)^2)+I((county_count)^3), data = ei.df)
+  fit5 <- lmer(ei~(1|region)+(1|season)+population+county_area_km2_mean+I((county_area_km2_mean)^2)+I((county_area_km2_mean)^3), data = ei.df)
+  fit6 <- lmer(ei~(1|region)+(1|season)+population+county.pop.mean+I((county.pop.mean)^2)+I((county.pop.mean)^3), data = ei.df)
+  fit7 <- lmer(ei~(1|region)+(1|season)+population+county.popday.mean+I((county.popday.mean)^2)+I((county.popday.mean)^3), data = ei.df)
+  fit8 <- lmer(ei~(1|region)+(1|season)+population+state.crowding+I((state.crowding)^2)+I((state.crowding)^3), data = ei.df)
+  fit9 <- lmer(ei~(1|region)+(1|season)+population+state.patchiness+I((state.patchiness)^2)+I((state.patchiness)^3), data = ei.df)
+  fit10 <- lmer(ei~(1|region)+(1|season)+population+state.crowding.day+I((state.crowding.day)^2)+I((state.crowding.day)^3), data = ei.df)
+  fit11 <- lmer(ei~(1|region)+(1|season)+population+state.patchiness.day+I((state.patchiness.day)^2)+I((state.patchiness.day)^3), data = ei.df)
+  fit12 <- lmer(ei~(1|region)+(1|season)+population+state.crowding.dailychange+I((state.crowding.dailychange)^2)+I((state.crowding.dailychange)^3), data = ei.df)
+  fit13 <- lmer(ei~(1|region)+(1|season)+population+state.patchiness.dailychange+I((state.patchiness.dailychange)^2)+I((state.patchiness.dailychange)^3), data = ei.df)
+  fit14 <- lmer(ei~(1|region)+(1|season)+population+state.crowding.dailychangeratio+I((state.crowding.dailychangeratio)^2)+I((state.crowding.dailychangeratio)^3), data = ei.df)
+  fit15 <- lmer(ei~(1|region)+(1|season)+population+state.patchiness.dailychangeratio+I((state.patchiness.dailychangeratio)^2)+I((state.patchiness.dailychangeratio)^3), data = ei.df)
+  fit16 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2+I((state_area_km2)^2)+I((state_area_km2)^3), data = ei.df)
+  fit17 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2_land+I((state_area_km2_land)^2)+I((state_area_km2_land)^3), data = ei.df)
+  fit18 <- lmer(ei~(1|region)+(1|season)+population+state_area_km2_water+I((state_area_km2_water)^2)+I((state_area_km2_water)^3), data = ei.df)
+  fit19 <- lmer(ei~(1|region)+(1|season)+population+Total.Workers+I((Total.Workers)^2)+I((Total.Workers)^3), data = ei.df)
+  fit20 <- lmer(ei~(1|region)+(1|season)+population+distance_mean_km+I((distance_mean_km)^2)+I((distance_mean_km)^3), data = ei.df)
+  fit21 <- lmer(ei~(1|region)+(1|season)+population+distance_mean_km_nozeros+I((distance_mean_km_nozeros)^2)+I((distance_mean_km_nozeros)^3), data = ei.df)
+  fit22 <- lmer(ei~(1|region)+(1|season)+population+Internal+I((Internal)^2)+I((Internal)^3), data = ei.df)
+  fit23 <- lmer(ei~(1|region)+(1|season)+population+Internal_prop+I((Internal_prop)^2)+I((Internal_prop)^3), data = ei.df)
+  fit24 <- lmer(ei~(1|region)+(1|season)+population+`Short Distance`+I((`Short Distance`)^2)+I((`Short Distance`)^3), data = ei.df)
+  fit25 <- lmer(ei~(1|region)+(1|season)+population+`Short Distance_prop`+I((`Short Distance_prop`)^2)+I((`Short Distance_prop`)^3), data = ei.df)
+  fit26 <- lmer(ei~(1|region)+(1|season)+population+`Long Distance`+I((`Long Distance`)^2)+I((`Long Distance`)^3), data = ei.df)
+  fit27 <- lmer(ei~(1|region)+(1|season)+population+`Long Distance_prop`+I((`Long Distance_prop`)^2)+I((`Long Distance_prop`)^3), data = ei.df)
+  fit28 <- lmer(ei~(1|region)+(1|season)+population+ratio.si+I((ratio.si)^2)+I((ratio.si)^3), data = ei.df)
+  fit29 <- lmer(ei~(1|region)+(1|season)+population+ratio.ls+I((ratio.ls)^2)+I((ratio.ls)^3), data = ei.df)
+  fit30 <- lmer(ei~(1|region)+(1|season)+population+ratio.li+I((ratio.li)^2)+I((ratio.li)^3), data = ei.df)
 }
 
+
+
 # quartic
-## seems too overfit
 # cat(dput(paste0("fit",
 #                 1:length(myvars),
 #                 " <- lmer(ei~(1|region)+(1|season)+population+",
-#                 myvars,
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
 #                 "+I((",
-#                 myvars,
-#                 ")^2)", 
-#                 "+I((", 
-#                 myvars,
-#                 ")^3), data = ei.df)\n")))
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+#                 ")^2)",
+#                 "+I((",
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+#                 ")^3)",
+#                 "+I((",
+#                 ifelse(grepl(" ", myvars), sub("(.+)", "`\\1`", myvars), myvars),
+#                 ")^4), data = ei.df)\n")))
+
+
+
+
+
+
 
 
 
@@ -185,8 +251,9 @@ coefests <- lapply(fits,
                      intervalests <- confint(x) %>%
                        as.data.frame() %>%
                        rownames_to_column("Parameter") %>%
-                       mutate(across(2:3, ~round(.x, 3))) %>%
-                       mutate(CI = paste0("(", `2.5 %`, ",", `97.5 %`, ")")) %>%
+                       mutate(across(2:3, ~round(.x, 3)), 
+                              sig = ifelse(sign(`2.5 %`)==sign(`97.5 %`), "*", "")) %>%
+                       mutate(CI = paste0("(", `2.5 %`, ",", `97.5 %`, ")", sig)) %>%
                        select(Parameter, CI)
                      
                      ests <- left_join(pointests, 
@@ -214,15 +281,29 @@ table.coefs <- full_join(coefests%>%filter(Parameter%in%c("(Intercept)"))%>%rena
   full_join(., 
             coefests%>%
               filter(!Parameter%in%c("(Intercept)", "population"))%>%
-              mutate(Term = ifelse(grepl(".+\\^2)$", Parameter), "Quadratic", "Linear"), 
+              mutate(Term = case_when(grepl(".+\\^4)$", Parameter) ~ "Quartic", 
+                                      grepl(".+\\^3)$", Parameter) ~ "Cubic", 
+                                      grepl(".+\\^2)$", Parameter) ~ "Quadratic", 
+                                      TRUE ~ "Linear"), 
                      Parameter = case_when(grepl("peak_wk", Parameter) ~ "Peak Week", 
+                                           grepl("county[.]pop[.]mean", Parameter) ~ "Average County Population", 
+                                           grepl("county[.]popday[.]mean", Parameter) ~ "Average County Population during Day", 
+                                           
+                                           grepl("state[.]crowding[.]dailychange", Parameter) ~ "Daily Change in State Crowding",
+                                           grepl("state[.]crowding[.]day", Parameter) ~ "State Crowding during Day",
+                                           grepl("state[.]crowding", Parameter) ~ "State Crowding", 
+                                           grepl("state[.]patchiness[.]dailychange", Parameter) ~ "Daily Change in State Patchiness", 
+                                           grepl("state[.]patchiness[.]day", Parameter) ~ "State Patchiness during Day", 
+                                           grepl("state[.]patchiness", Parameter) ~ "State Patchiness", 
+                                           
                                            grepl("Long Distance_prop", Parameter) ~ "Proportion Commutes Long Distance", 
                                            grepl("distance_mean_km_nozeros", Parameter) ~ "Average Commute Distance (no zeros)", 
                                            grepl("distance_mean_km", Parameter) ~ "Average Commute Distance", 
                                            grepl("county_count", Parameter) ~ "County Count", 
                                            grepl("county_area_km2_mean", Parameter) ~ "Average County Area", 
                                            grepl("state_area_km2_water", Parameter) ~ "State Water Area", 
-                                           grepl("state_area_km2", Parameter) ~ "State Land Area", 
+                                           grepl("state_area_km2_land", Parameter) ~ "State Land Area", 
+                                           grepl("state_area_km2", Parameter) ~ "State Area Total", 
                                            grepl("pop_density2", Parameter) ~ "Population Density (Total Area)", 
                                            grepl("pop_density", Parameter) ~ "Population Density (Land Area)", 
                                            grepl("Total.Workers", Parameter) ~ "Total Workers", 
@@ -232,13 +313,25 @@ table.coefs <- full_join(coefests%>%filter(Parameter%in%c("(Intercept)"))%>%rena
                                            grepl("Short Distance", Parameter) ~ "Total Commutes Short Distance", 
                                            grepl("Long Distance", Parameter) ~ "Total Commutes Long Distance", 
                                            grepl("ratio.si", Parameter) ~ "Ratio of Short Distance to Internal Commutes", 
-                                           grepl("ratio.ls", Parameter) ~ "Ratio of Long Distance to Short Distance Commutes")) %>%
+                                           grepl("ratio.ls", Parameter) ~ "Ratio of Long Distance to Short Distance Commutes", 
+                                           grepl("ratio.li", Parameter) ~ "Ratio of Long Distance to Internal Commutes")) %>%
               pivot_wider(names_from = "Term", values_from = "Estimate"), 
             by = "Model") %>%
   arrange(as.numeric(sub("fit", "", Model)))
 
 
-
+table.coefs <- full_join(table.coefs, 
+                         lapply(fits, 
+                                (\(x){
+                                  temp<-anova(x,fitme)
+                                  return(data.frame(`Model P`=temp$`Pr(>Chisq)`[2], 
+                                                    AIC=temp$AIC[2], 
+                                                    BIC=temp$BIC[2]))
+                                }))%>%
+                           bind_rows(.id = "Model")%>%
+                           mutate(across(where(is.numeric), 
+                                         ~round(.x,3))), 
+                         by = "Model")
 
 
 ## save

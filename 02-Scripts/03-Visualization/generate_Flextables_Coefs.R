@@ -48,7 +48,8 @@ names(t.list) <- sub("[.]", "_", sub("table[.]", "", names(t.list)))
 caps <- c("Coefficient Estimates from Linear Mixed Effects Model of ILI Epidemic Intensity", 
           "Data Summary", 
           "Data Summary, raw data", 
-          "Data Summary, transformed data")
+          "Data Summary, transformed data", 
+          "Data Summary, transformed+centered&scaled data")
 
 
 
