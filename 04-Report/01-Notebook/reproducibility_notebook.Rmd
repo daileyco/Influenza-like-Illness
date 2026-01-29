@@ -117,6 +117,7 @@ The following script does that:
 
 ```{r}
 source("./02-Scripts/01-Data-Wrangling/process_Data_Population_Align_Season.R", echo=TRUE)
+source("./02-Scripts/01-Data-Wrangling/process_Data_Spatial.R", echo=TRUE)
 ```
 
 
@@ -162,6 +163,15 @@ Now, that the data have been managed and set up for this analysis, we can look a
 
 We can first create some nice figures to show the data. 
 
+
+```{r}
+source("./02-Scripts/03-Visualization/generate_Tables_Summary.R")
+```
+
+
+
+
+
 #### Epidemic Curves Heatmap
 
 The following script creates a heatmap to represent the ILI epidemic curves, or rather the proportions of cumulative ILI cases for each season, for each location across the data time frame:
@@ -180,6 +190,7 @@ The following script creates a table showing the epidemic intensities for each l
 
 ```{r}
 source("./02-Scripts/03-Visualization/generate_Table_Epidemic_Intensities.R")
+source("./02-Scripts/03-Visualization/generate_Figure_ILI_Epidemic_Intensity_Heatmap.R")
 ```
 
 
@@ -192,6 +203,7 @@ edited to proportions of internal (intracounty), short distance, and long distan
 
 ```{r}
 source("./02-Scripts/03-Visualization/generate_Figure_Epidemic_Intensity_Scatters.R")
+source("./02-Scripts/03-Visualization/generate_Figures_MapEICommutes.R")
 ```
 
 
@@ -207,6 +219,14 @@ source("./02-Scripts/04-Analysis/regress_Epidemic_Intensity.R")
 ```
 
 The script also creates a summary table for the model coefficients. 
+
+
+
+
+```{r}
+source("./02-Scripts/03-Visualization/generate_Figures_Scatters_w_Fits.R")
+source("./02-Scripts/03-Visualization/generate_Flextables_Coefs.R")
+```
 
 
 

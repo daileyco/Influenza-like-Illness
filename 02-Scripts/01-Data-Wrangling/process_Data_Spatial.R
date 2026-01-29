@@ -1,15 +1,15 @@
-#spatial
+# process spatial data
 
 
-## load data
+## Load Data
 
 
-## packages
+## Packages
 library(dplyr)
 library(sf)
 
 
-## helper functions
+## Helper Functions
 
 
 
@@ -34,13 +34,13 @@ states <- shape %>%
 
 
 
-## save 
+## Save 
 
 save(states, file = "./01-Data/01-Processed-Data/states.rds")
 
 
 
-## clean environment
+## Clean Environment
 rm(list=ls())
 gc()
 

@@ -1,9 +1,18 @@
+# Script to process population data from the census
 
+## Load Data
 
+## Packages
 library(readxl)
 library(tidyr)
 library(dplyr)
 
+## Helper Functions
+
+
+
+
+## Population data
 #2010-2019
 
 pop <- read_xlsx("./01-Data/00-Raw-Data/Population/nst-est2019-01.xlsx", 
@@ -67,10 +76,10 @@ pop <- bind_rows(pop, pop20) %>%
 
 
 
-#save
+## Save
 save(pop, file = "./01-Data/01-Processed-Data/pop.rds")
 
 
-#clear out environment
+## Clean Environment
 rm(list = ls())
 gc()

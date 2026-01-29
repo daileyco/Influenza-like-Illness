@@ -1,20 +1,17 @@
+# script to generate a heatmap for ILI epidemic intensities
 
-
-
-
-
-
-
-
-
-
-## load data
+## Load Data
 load("./01-Data/02-Analytic-Data/ili.rds")
 load("./01-Data/02-Analytic-Data/ei_df.rdata")
 
-## packages
+## Packages
 library(dplyr)
 library(tidyr)
+
+
+## Helper Functions
+
+
 
 ## figure set up
 x <- data.frame(season = unique(ei.df$season)) %>%
@@ -170,8 +167,9 @@ axis(side = 3,
 
 dev.off()
 
+## Save
 
 
-## clean environment
+## Clean Environment
 rm(list = ls())
 gc()

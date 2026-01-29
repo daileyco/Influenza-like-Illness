@@ -1,7 +1,18 @@
 # ILI Data Processing
 
+## Load Data
 
-# Read FluView data
+## Packages
+library(dplyr)
+library(magrittr)
+library(readxl)
+library(tidyr)
+
+
+## Helper Functions
+
+
+## Read FluView data
 ili <- read.csv("./01-Data/00-Raw-Data/Flu/state_ili.csv")
 
 # # Examine structure / format / variables
@@ -13,8 +24,6 @@ ili <- ili[,c("region", "week_start", "year", "week", "ilitotal", "num_of_provid
 
 
 # Cleaning
-library(dplyr)
-library(magrittr)
 
 ## formatting, calculations
 ili %<>% 
@@ -61,8 +70,6 @@ ili %<>%
 
 ## Florida data
 
-library(readxl)
-
 ili.fl <- read_xlsx("./01-Data/00-Raw-Data/Flu/Florida_ILINet Data 2011-2021.xlsx", sheet = "Data")
 
 ### need to reformat dataframe, wide to long wrt season
@@ -74,7 +81,6 @@ ili.fl.patients <- ili.fl[2:nrow(ili.fl), c(1, which(ili.fl[1,]=="Total Patients
   setNames(., nm = c("week", paste("total_patients", names(ili.fl)[which(substr(names(ili.fl), 1,1)==2)], sep = "_")))
 
 
-library(tidyr)
 
 ili.fl.totili.long <- tidyr::pivot_longer(ili.fl.totili, 2:11, names_to = "year", names_prefix = "ilitotal_", values_to = "ilitotal")
 ili.fl.patients.long <- tidyr::pivot_longer(ili.fl.patients, 2:11, names_to = "year", names_prefix = "total_patients_", values_to = "total_patients")
@@ -175,8 +181,10 @@ missingness <- ili.extensive %>%
 
 ili <- ili.extensive
 
-
+## Save
 save(ili, file = "./01-Data/01-Processed-Data/ili.rds")
 
+
+## Clean Environment
 rm(list = ls())
 gc()

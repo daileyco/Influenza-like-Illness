@@ -1,18 +1,23 @@
 # script to interpolate population estimates to better align with influenza season
 
-## load data
+## Load Data
 # load("./01-Data/01-Processed-Data/pop.rds")
 load("../Mobility-Models/01-Data/01-Processed-Data/pop.rds")
 load("./01-Data/02-Analytic-Data/netcommutes.rds")
 
 
 
-## packages
+## Packages
 library(zoo)
 library(dplyr)
 library(tibble)
 library(tidyr)
 
+
+## Helper Functions
+
+
+## Setup
 
 
 # ## remove years not in ILI dataset
@@ -121,10 +126,10 @@ pop.seasonal <- pop %>%
 
 
 
-## save
+## Save
 save(pop.seasonal, file = "./01-Data/02-Analytic-Data/pop_seasonal.rds")
 
-## clean environment
+## Clean Environment
 rm(list = ls())
 gc()
 

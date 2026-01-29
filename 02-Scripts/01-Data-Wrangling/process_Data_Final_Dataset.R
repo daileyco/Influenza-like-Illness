@@ -1,6 +1,6 @@
 # Create final analytic dataset
 
-# load datasets from seperate sources
+## Load Data
 load("./01-Data/02-Analytic-Data/ili_ei.rds")
 load("./01-Data/02-Analytic-Data/pop_seasonal.rds")
 # load("./01-Data/02-Analytic-Data/acs_prop_flowtype.rds")
@@ -9,11 +9,16 @@ load("./01-Data/01-Processed-Data/states.rds")
 
 
 
-# packages
+## Packages
 library(dplyr)
 
 
-# merge ili epidemic intensity df with seasonal population estimates
+## Helper Functions
+
+
+
+
+## merge ili epidemic intensity df with seasonal population estimates
 # one to one merge
 ei.df <- full_join(ili.ei, 
                    pop.seasonal %>% 
@@ -63,7 +68,7 @@ ei.df <- ei.df %>%
 
 
 
-# package all data into one save file
+## Save
 save(ei.df, 
      # ili.ei, 
      # pop.seasonal, 
@@ -73,7 +78,7 @@ save(ei.df,
      file = "./01-Data/02-Analytic-Data/ei_df.rdata")
 
 
-# clean environment
+## Clean Environment
 rm(list = ls())
 gc()
 

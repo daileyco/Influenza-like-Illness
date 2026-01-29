@@ -1,12 +1,16 @@
+# Script to create summary table
 
-
-
+## Load Data
 load("./01-Data/02-Analytic-Data/ei_df.rdata")
 
-
-
+## Packages
 library(dplyr)
 
+## Helper Functions
+
+
+
+## setup
 
 ei.df <- ei.df %>%
   rename(state_area_km2_land = state_area_km2) %>% 
@@ -181,13 +185,13 @@ table.summary <- bind_rows(table.summary.raw, table.summary.transformed, table.s
 
 
 
-
+## Save
 save(list = ls(pattern = "^table[.]"), 
      file = "./03-Output/01-Tables/tables_summaries.rdata")
 
 
 
-
+## Clean Environment
 rm(list=ls())
 gc()
 

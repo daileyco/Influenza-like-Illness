@@ -1,11 +1,18 @@
 # epidemic intensity calculations
 
-
+## Load Data
 load("./01-Data/01-Processed-Data/ili.rds")
 
+## Packages
 library(dplyr)
 library(tidyr)
 library(lubridate)
+
+## Helper Functions
+
+
+
+## Epidemic intentsity
 
 ili.seasonal.distributions <- ili %>% 
   filter(!is.na(week) & !region%in%c("Commonwealth of the Northern Mariana Islands", "Virgin Islands")) %>%
@@ -131,11 +138,15 @@ ili <- ili.ei.units %>%
 
 
 
+
+## Save
+
 save(ili.ei, file = "./01-Data/02-Analytic-Data/ili_ei.rds")
 
 save(ili, file = "./01-Data/02-Analytic-Data/ili.rds")
 
 
+## Clean Environment
 rm(list = ls())
 gc()
 

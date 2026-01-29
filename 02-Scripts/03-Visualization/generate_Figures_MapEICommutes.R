@@ -1,6 +1,6 @@
 # Script to create figure showing total commuters vs population at origin
 
-## load data
+## Load Data
 load("./01-Data/02-Analytic-Data/ei_df.rdata")
 load("./01-Data/02-Analytic-Data/countycommutescat.rds")
 
@@ -11,14 +11,17 @@ load("./01-Data/02-Analytic-Data/countycommutescat.rds")
 # load("./01-Data/01-Processed-Data/county_centers.rds")
 
 
-## packages
+## Packages
 library(dplyr)
 library(tidyr)
 library(RColorBrewer)
 library(sf)
 
 
+## Helper Functions
 
+
+## setup
 
 
 
@@ -302,8 +305,11 @@ dev.off()
 
 
 
+## Save
 
-## clean environment
+
+
+## Clean Environment
 rm(list = ls())
 gc()
 

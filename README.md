@@ -1,4 +1,54 @@
-# Project Skeleton
+# Influenza-like Illness Repo
+
+Spatial scales have proven to be an important feature in the ecology of infectious diseases. However, spatial scales lack clear definitions. We hypothesized that local commuting patterns impact regional influenza epidemic dynamics. To investigate this, we first estimated a critical distance threshold distinguishing local and long-distance commutes using gravity models (in repo daileyco/Mobility-Models). 
+
+Here, we explored the associations between regional summaries of local commuting patterns and regional influenza-like illness (ILI) epidemics using regression models.
+
+This repo relates to the second part of Chapter 2 in [my PhD dissertation](https://esploro.libs.uga.edu/esploro/outputs/9949694128302959).
+
+Feel free to reach out to me (daileyco@gmail.com) or my PhD advisor, Justin Bahl (Justin.Bahl@uga.edu), with any questions. 
+
+## Repo Contents
+
+This repo contains scripts that: 
+
+- read and manage input data, 
+- fit regression models of influenza-like illness epidemic intensity against summaries of worker commuting patterns,
+- and generate various tables and figures showing important patterns in the data or analytical results.
+
+
+The scripts in this repo (and others of my creation) are highly modular. The scripts are designed to be run in a particular sequence that ensures the output(s) saved from upstream scripts are available for input(s) in downstream scripts. (See the bottom of this readme for a generic description of repo contents/structure.)
+
+There are two files that outline the order of scripts and give details on their individual purposes. 
+- "00-Information/script_census-[compile date].xlsx"
+- "04-Report/01-Notebook/reproducibility_notebook.rmd"
+
+The script census excel file gives details on scripts in this repo, including its purpose, inputs, package dependencies, and outputs. The creation of this excel file was automated (".02-Scripts/Script_Census.R"), so there are likely some errors in formatting or omitted information. Each script itself has some comments explaining the intent for sections of the code. 
+The reproducibility notebook is a combination of (1) a narrative explaining analysis steps and (2) a master script which sources/runs all of the main analysis scripts.
+
+A few of the columns from the script census are shown in the table below. (created with knitr::kable(census[,c(2,1,3)]))
+
+|Script Location   |Script Name                                      |Purpose                                                                          |
+|:-----------------|:------------------------------------------------|:--------------------------------------------------------------------------------|
+|01-Data-Wrangling |process_Data_ILI.R                               |ILI Data Processing                                                              |
+|01-Data-Wrangling |process_Data_Population.R                        |Script to process population data from the census                                |
+|01-Data-Wrangling |process_Data_ACS_Ratios_Aggregate.R              |script to process and aggregate commuting flows data                             |
+|01-Data-Wrangling |process_Data_ILI_Curve_Proportions.R             |epidemic intensity calculations                                                  |
+|01-Data-Wrangling |process_Data_Population_Align_Season.R           |script to interpolate population estimates to better align with influenza season |
+|01-Data-Wrangling |process_Data_Spatial.R                           |process spatial data                                                             |
+|01-Data-Wrangling |process_Data_Final_Dataset.R                     |Create final analytic dataset                                                    |
+|03-Visualization  |generate_Tables_Summary.R                        |Script to create summary table                                                   |
+|03-Visualization  |generate_Figure_ILI_Epidemic_Curves_Heatmap.R    |Figure heatmap showing proportion of cumulative seasonal ILI by week and state   |
+|03-Visualization  |generate_Table_Epidemic_Intensities.R            |Create a table for the epidemic intensities                                      |
+|03-Visualization  |generate_Figure_ILI_Epidemic_Intensity_Heatmap.R |script to generate a heatmap for ILI epidemic intensities                        |
+|03-Visualization  |generate_Figure_Epidemic_Intensity_Scatters.R    |Create scatter plots figure of epidemic intensity against covariates             |
+|03-Visualization  |generate_Figures_MapEICommutes.R                 |Script to create figure showing total commuters vs population at origin          |
+|04-Analysis       |regress_Epidemic_Intensity.R                     |Regress epidemic intensity against covariates                                    |
+|03-Visualization  |generate_Figures_Scatters_w_Fits.R               |script to make residual plots with fitted curves                                 |
+|03-Visualization  |generate_Flextables_Coefs.R                      |script to format summary & coef tables and save to word doc                      |
+
+
+# Project Skeleton (my generic repo template)
 
 A basic repo template (directory structure) to be use as starting point for new projects.
 

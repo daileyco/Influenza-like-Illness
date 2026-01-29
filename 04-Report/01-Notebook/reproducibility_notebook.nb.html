@@ -1799,186 +1799,280 @@ interconnectedness on epidemic intensity</p></li>
 processed using following script:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9JTEkuUlwiKVxuYGBgIn0= -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_ILI.R&quot;)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5SlRFa3VVbHhjS1Z4dVlHQmdYRzVnWUdBaWZRPT0gLS0+XG5cbmBgYHJcbmBgYHJcbnNvdXJjZShcXC4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJLlJcXClcbmBgYFxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9JTEkuUlxcKVxuYGBgXG5gYGAifQ== -->
+<pre class="r"><code>```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_ILI.R\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+Data were stored in a dataframe with each row corresponding to a specific location (state) during a specific week (epi week and date) with the reported counts of ILI and total patients for that location during that week. 
+
+Data were originally split for New York City and New York; I summed those to a single location. Also, data from FluView are missing Florida data completely, but LD was able to obtain data from the Florida Department of Public Health. The data greatly overlap, but the Florida data seems to be missing some of the earliest and latest data (effectively trimming the dataset from both timepoints ends). 
+
+
+
+
+
+### Population Data
+
+Next, we process some population estimates from the census. This is a simple script to extract a tidy df from a table in an excel spreadsheet: 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5UWIzQjFiR0YwYVc5dUxsSmNYQ3dnWldOb2J5QTlJRlFwWEc1Z1lHQmNibUJnWUNKOSAtLT5cblxuYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uLlJcXCwgZWNobyA9IFQpXG5gYGBcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uLlJcXCwgZWNobyA9IFQpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_Population.R\, echo = T)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+### Mobility Data
+
+&lt;!-- Worker commuting flows from the American Community Survey for both 2011-2015 and 2016-2020 are downloaded as excel spreadsheets, though not in a tidy data format (e.g., there is extra fluff at the top and bottom of the excel tables). The ACS data essentially contain four main variables: a location of residence, a location of work, a point estimate of the number of workers commuting between the two locations, and an estimate of uncertainty (i.e., margin of error) for the point estimate. These data are aggregated to the state level to align with the ILI data. In aggregating the data to the state level, the measure of uncertainty is lost; is there a simple way to account for each margin of error in aggregate data? For now, we will focus on the locations and the point estimate and potentially return to the uncertainty later for sensitivity analyses.    --&gt;
+
+&lt;!-- The process script is simple enough as it just loads the data, categorizes the type of commuter flow (intracounty, intrastate, interstate, international), aggregates totals to the state level, combines the data from both time ranges, and then saves an .rds file. Additionally, the data are expanded to have entries for all possible combinations of locations; this allows me to note the &quot;unobserved&quot; flows.   --&gt;
+
+&lt;!-- The script is sourced using the following code: --&gt;
+
+&lt;!-- ```{r} --&gt;
+&lt;!-- source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_ACS.R&quot;, echo = T) --&gt;
+&lt;!-- ``` --&gt;
+
+
+For ease and to not duplicate code, I am borrowing the clean data from the previous analysis (daileyco/Mobility-Models). This commuting data has the commuting flows between counties as well as the distances of each flow already computed. So, this data is merged with another dataset from the results of previous analysis. The results include the distance thresholds that were determined from gravity model fits. The county-to-county flow distances are compared to the distance thresholds for each region to categorize flows as internal (within resident county), short distance (less than or equal to distance threshold), and long distance (greater than distance threshold). These categories are then used to summarize the data at the state level by simple summation. This leaves a dataset with two entries for each state (two time periods) and quantities of the number of commutes of each &quot;flow type&quot; (according to distances). Following, these quantities are transformed in two ways. First, I take simple ratios of the total short distance commutes to the total internal commutes for each state. Similarly, I compute a ratio of the total long distance commutes to the total short distance commutes. These ratios I will use as predictors / independent variables. 
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5QlExTmZVbUYwYVc5elgwRm5aM0psWjJGMFpTNVNYRndzSUdWamFHODlWQ2xjYm1CZ1lGeHVZR0JnSW4wPSAtLT5cblxuYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9BQ1NfUmF0aW9zX0FnZ3JlZ2F0ZS5SXFwsIGVjaG89VClcbmBgYFxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9BQ1NfUmF0aW9zX0FnZ3JlZ2F0ZS5SXFwsIGVjaG89VClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_ACS_Ratios_Aggregate.R\, echo=T)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+
+
+
+
+
+
+## Data Engineering
+
+### ILI 
+
+First, we will need to find the seasons for which we have complete data. Then for each season and each location, we need to sum the counts for cumulative season totals, and subsequently use them to calculate a proportion of cumulative season ILI totals observed in a given week. 
+
+These proportions are used to calculate epidemic intensity, which is a slight modification of Shannon entropy across the weeks of an epidemic season. While Shannon entropy is maximized with balance across the categorical variable, i.e., week, epidemic intensity is inverted so that larger values correspond to more &quot;intense&quot; epidemics that are focused in a smaller time frame (larger peaks). Additionally, epidemic intensity is rescaled so that global minimum is zero and global maximum is one (global meaning across all seasons and regions in the dataset). 
+
+Each new season begins in epidemiological week 40 (~October). ILI data for the Mariana Islands and Virgin Islands are dropped here as the former is missing all ILI data and neither are in the mobility data. For the weeks with zero counts of ILI, the individual week&#39;s epidemic intensity unit / entropy unit (i.e., p*log(p)) is indeterminate (log(0)) and replaced with a zero value. 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5SlRFbGZRM1Z5ZG1WZlVISnZjRzl5ZEdsdmJuTXVVbHhjTENCbFkyaHZQVlJTVlVVcFhHNWdZR0JjYm1CZ1lDSjkgLS0+XG5cbmBgYHJcbmBgYHJcbnNvdXJjZShcXC4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJX0N1cnZlX1Byb3BvcnRpb25zLlJcXCwgZWNobz1UUlVFKVxuYGBgXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9JTElfQ3VydmVfUHJvcG9ydGlvbnMuUlxcLCBlY2hvPVRSVUUpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_ILI_Curve_Proportions.R\, echo=TRUE)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+In examining data missingness, I noted that the data values for the &quot;year&quot; are incorrect for week starts at end of December; for example, the year for the week start of 30 December 2012 is entered as 2013. Perhaps, this indicates the first epidemiological year similar to epiweeks? This was impacting data merging, so it was recomputed to reflect calendar year of the week start date. This year variable should not be needed for downstream analyses, though, but it was used for setting up data merges and examining implicitly missing data. 
+
+Data are missing for Florida 2010-11 season completely, Puerto Rico 2010-11, 2011-12 seasons completely and nearly completely for 2012-13 season. The dataset is truncated at end of May for the 2020-21 season for all locations; likely artifact of download time. So, we will include data spanning from 2011-12 season to 2019-20 season, which matches the commuting data. Tentatively, PR will be included, but I will need to consider impact on analyses. 
+
+Quick exploration of the distributions of the proportion of cumulative ILI (p) for each week for each location and what I am calling an epidemic intensity unit (ei.unit) (p*log(p)) indicates the intrinsic bounds at zero for both and at one for the proportions. So, in downstream analyses it may be preferable to use the ei unit over the proportion. Taking the absolute value of the ei unit flips the direction about zero so that values are non-negative and have a similar directional interpretation to the aggregate epidemic intensity; that is, larger values correspond to more extreme / imbalanced values (???). But, I am unsure of this being the best way for sake of interpretation. It may be a little wacky to treat the small and large values similarly, and maybe the proportions are preferable. 
+
+
+### Population
+
+The population estimates data roughly correspond to the population of a location at the midpoint (1 July) of the given year. This does not directly match up to the ILI data that have been transformed relative to seasonal totals where the season is set to begin at epiweek 40 of one year and ends at epiweek 39 of the following year. Note that this is more of a yearly designation rather than a true influenza season; a technical flu season may exclude summer months, May-ish through September-ish.  
+  
+To better align the the population estimate for a location at the midpoint of a given year to a specific influenza season, it may be useful to calculate simple averages between sequential years. For example, if I take the 2011 population estimate (July 1) and average it with the 2012 population estimate (July 1), then this may better correspond to the population size in December 2011 / January 2012, closer to the timing of the peaks of epidemics. 
+
+The following script does that:
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5UWIzQjFiR0YwYVc5dVgwRnNhV2R1WDFObFlYTnZiaTVTWEZ3c0lHVmphRzg5VkZKVlJTbGNibUJnWUZ4dVlHQmdJbjA9IC0tPlxuXG5gYGByXG5gYGByXG5zb3VyY2UoXFwuLzAyLVNjcmlwdHMvMDEtRGF0YS1XcmFuZ2xpbmcvcHJvY2Vzc19EYXRhX1BvcHVsYXRpb25fQWxpZ25fU2Vhc29uLlJcXCwgZWNobz1UUlVFKVxuYGBgXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uX0FsaWduX1NlYXNvbi5SXFwsIGVjaG89VFJVRSlcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_Population_Align_Season.R\, echo=TRUE)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+
+### Commuting
+
+&lt;!-- The commuting data contains information about the commuter flow volume or flux between two locations. In this way, it it really data on the connectedness / adjacency of location pairs, a network. In this format, it is not easily combined or aligned with the ILI data. Sure there may be some network analyses or compartmental modeling analyses that we could perform to use the data in its original format, but, here, I only want to do some simple analyses relating the ILI epidemic intensity. A rudimentary approach could be to include all origins and destinations and their flows as separate variables or features, e.g., number of incoming commuters from Georgia. However, this may present a few problems: (1) there will be many implicit &quot;zeros&quot; where location pairs have no commuters; (2) there will be many many variables (52 incoming + 52 outgoing?); (3) this would not allow for a more &quot;generalized&quot; interpretation as all features are specific to single locations. So, another approach is desirable. The simplest way that I can think to initially approach this analysis is to aggregate the commuter flows in three ways: (1) internal commutes where origins and destinations are the same; (2) all incoming / inflow commuters for a specific destination location; (3) all outgoing / outflow commuters for a specific origin location. In this way, we will have features corresponding to local population mixing (internal), potential importations (incoming), and potential &quot;foreign&quot; exposures (outgoing). This is still rather rudimentary, but it will work for this preliminary analysis.   --&gt;
+
+&lt;!-- One last thing to consider is the scale of the data. As I am hoping to analyze this data alongside the population size data, the counts of commuter volume may be too correlated with the population size; that is, large counts of population size will correspond to large numbers of commuters. To remove this relationship, I need to account for the population sizes. Another simple approach may be to compute the proportions of commuters for each category. Though, this may force us to drop one of the three categories. (idk how to best describe this loss of a degree of freedom, linear combination; if they&#39;re not internal or outgoing, then they must be incoming?) So, another simple approach could be to calculate the proportions of commuters that are incoming (foreign, bad word choice but it works) or outgoing (expats, bad word choice but it works). Then, I could treat the internal commuters a little differently. This is a little challenging to decide on. My initial thoughts were to just to calculate the proportion of the total population that is an internal commuter. Part of me wants to consider the number of counties as well, though.  --&gt;
+
+&lt;!-- I went back to the original processing script where the data were aggregated to the state level and created a variable categorizing the flow type as either intracounty, intrastate (but not intracounty), interstate, and international. With this new level of aggregation, I can now calculate the proportions of workers in a focal resident location who are (1) outgoing (expats), (2) incoming (foreign), and (3) commuting within the state between counties. I realized that it may be preferable to exclude the workers who work in the same county as they reside and having an additional category would allow me to use the simple proportions. Though, this may introduce a bias according to the number of counties and their relative size (Eastern US has more and smaller counties than Western US). I&#39;m just going to rock with this as is for now and think more on how to control later (maybe somehow take the distance of the flow into consideration). --&gt;
+
+&lt;!-- The following script aggregates the commuting data:   --&gt;
+
+&lt;!-- ```{r} --&gt;
+&lt;!-- source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_ACS_Aggregate_Flows.R&quot;, echo=TRUE) --&gt;
+&lt;!-- ``` --&gt;
+
+
+
+&lt;!-- Maybe in the future, I can bridge the gap between the two aforementioned approaches, such as with features corresponding to the specific flows within and among different regions.  --&gt;
+
+
+## Finalize Dataset
+
+The following script merges the epidemic intensity dataset, the population dataset, and the commuting dataset. Also, all three separate and the newly merged dataset are packaged (saved) together. 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF4TFVSaGRHRXRWM0poYm1kc2FXNW5MM0J5YjJObGMzTmZSR0YwWVY5R2FXNWhiRjlFWVhSaGMyVjBMbEpjWEN3Z1pXTm9iejFVVWxWRktWeHVZR0JnWEc1Z1lHQWlmUT09IC0tPlxuXG5gYGByXG5gYGByXG5zb3VyY2UoXFwuLzAyLVNjcmlwdHMvMDEtRGF0YS1XcmFuZ2xpbmcvcHJvY2Vzc19EYXRhX0ZpbmFsX0RhdGFzZXQuUlxcLCBlY2hvPVRSVUUpXG5gYGBcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9GaW5hbF9EYXRhc2V0LlJcXCwgZWNobz1UUlVFKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+source(\./02-Scripts/01-Data-Wrangling/process_Data_Final_Dataset.R\, echo=TRUE)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+
+## Analysis: Variation in Influenza-like Illness Epidemic Intensity against Population Size and Commuting Patterns
+
+Now, that the data have been managed and set up for this analysis, we can look at the data more closely and set up some hypothesis tests. 
+
+
+
+### Data Presentation / Visualization
+
+We can first create some nice figures to show the data. 
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVjMjkxY21ObEtGd2lMaTh3TWkxVFkzSnBjSFJ6THpBekxWWnBjM1ZoYkdsNllYUnBiMjR2WjJWdVpYSmhkR1ZmVkdGaWJHVnpYMU4xYlcxaGNua3VVbHdpS1Z4dVlHQmdJbjA9IC0tPlxuXG5gYGByXG5zb3VyY2UoXCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9UYWJsZXNfU3VtbWFyeS5SXCIpXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfVGFibGVzX1N1bW1hcnkuUlwiKVxuYGBgIn0= --&gt;
+
+```r
+source(&quot;./02-Scripts/03-Visualization/generate_Tables_Summary.R&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Data were stored in a dataframe with each row corresponding to a
-specific location (state) during a specific week (epi week and date)
-with the reported counts of ILI and total patients for that location
-during that week.</p>
-<p>Data were originally split for New York City and New York; I summed
-those to a single location. Also, data from FluView are missing Florida
-data completely, but LD was able to obtain data from the Florida
-Department of Public Health. The data greatly overlap, but the Florida
-data seems to be missing some of the earliest and latest data
-(effectively trimming the dataset from both timepoints ends).</p>
-</div>
-<div id="population-data" class="section level3">
-<h3>Population Data</h3>
-<p>Next, we process some population estimates from the census. This is a
-simple script to extract a tidy df from a table in an excel
-spreadsheet:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uLlJcIiwgZWNobyA9IFQpXG5gYGAifQ== -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_Population.R&quot;, echo = T)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="mobility-data" class="section level3">
-<h3>Mobility Data</h3>
-<!-- Worker commuting flows from the American Community Survey for both 2011-2015 and 2016-2020 are downloaded as excel spreadsheets, though not in a tidy data format (e.g., there is extra fluff at the top and bottom of the excel tables). The ACS data essentially contain four main variables: a location of residence, a location of work, a point estimate of the number of workers commuting between the two locations, and an estimate of uncertainty (i.e., margin of error) for the point estimate. These data are aggregated to the state level to align with the ILI data. In aggregating the data to the state level, the measure of uncertainty is lost; is there a simple way to account for each margin of error in aggregate data? For now, we will focus on the locations and the point estimate and potentially return to the uncertainty later for sensitivity analyses.    -->
-<!-- The process script is simple enough as it just loads the data, categorizes the type of commuter flow (intracounty, intrastate, interstate, international), aggregates totals to the state level, combines the data from both time ranges, and then saves an .rds file. Additionally, the data are expanded to have entries for all possible combinations of locations; this allows me to note the "unobserved" flows.   -->
-<!-- The script is sourced using the following code: -->
-<!-- ```{r} -->
-<!-- source("./02-Scripts/01-Data-Wrangling/process_Data_ACS.R", echo = T) -->
-<!-- ``` -->
-<p>For ease and to not duplicate code, I am borrowing the clean data
-from the previous analysis (daileyco/Mobility-Models). This commuting
-data has the commuting flows between counties as well as the distances
-of each flow already computed. So, this data is merged with another
-dataset from the results of previous analysis. The results include the
-distance thresholds that were determined from gravity model fits. The
-county-to-county flow distances are compared to the distance thresholds
-for each region to categorize flows as internal (within resident
-county), short distance (less than or equal to distance threshold), and
-long distance (greater than distance threshold). These categories are
-then used to summarize the data at the state level by simple summation.
-This leaves a dataset with two entries for each state (two time periods)
-and quantities of the number of commutes of each “flow type” (according
-to distances). Following, these quantities are transformed in two ways.
-First, I take simple ratios of the total short distance commutes to the
-total internal commutes for each state. Similarly, I compute a ratio of
-the total long distance commutes to the total short distance commutes.
-These ratios I will use as predictors / independent variables.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9BQ1NfUmF0aW9zX0FnZ3JlZ2F0ZS5SXCIsIGVjaG89VClcbmBgYCJ9 -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_ACS_Ratios_Aggregate.R&quot;, echo=T)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="data-engineering" class="section level2">
-<h2>Data Engineering</h2>
-<div id="ili" class="section level3">
-<h3>ILI</h3>
-<p>First, we will need to find the seasons for which we have complete
-data. Then for each season and each location, we need to sum the counts
-for cumulative season totals, and subsequently use them to calculate a
-proportion of cumulative season ILI totals observed in a given week.</p>
-<p>These proportions are used to calculate epidemic intensity, which is
-a slight modification of Shannon entropy across the weeks of an epidemic
-season. While Shannon entropy is maximized with balance across the
-categorical variable, i.e., week, epidemic intensity is inverted so that
-larger values correspond to more “intense” epidemics that are focused in
-a smaller time frame (larger peaks). Additionally, epidemic intensity is
-rescaled so that global minimum is zero and global maximum is one
-(global meaning across all seasons and regions in the dataset).</p>
-<p>Each new season begins in epidemiological week 40 (~October). ILI
-data for the Mariana Islands and Virgin Islands are dropped here as the
-former is missing all ILI data and neither are in the mobility data. For
-the weeks with zero counts of ILI, the individual week’s epidemic
-intensity unit / entropy unit (i.e., p*log(p)) is indeterminate (log(0))
-and replaced with a zero value.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9JTElfQ3VydmVfUHJvcG9ydGlvbnMuUlwiLCBlY2hvPVRSVUUpXG5gYGAifQ== -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_ILI_Curve_Proportions.R&quot;, echo=TRUE)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>In examining data missingness, I noted that the data values for the
-“year” are incorrect for week starts at end of December; for example,
-the year for the week start of 30 December 2012 is entered as 2013.
-Perhaps, this indicates the first epidemiological year similar to
-epiweeks? This was impacting data merging, so it was recomputed to
-reflect calendar year of the week start date. This year variable should
-not be needed for downstream analyses, though, but it was used for
-setting up data merges and examining implicitly missing data.</p>
-<p>Data are missing for Florida 2010-11 season completely, Puerto Rico
-2010-11, 2011-12 seasons completely and nearly completely for 2012-13
-season. The dataset is truncated at end of May for the 2020-21 season
-for all locations; likely artifact of download time. So, we will include
-data spanning from 2011-12 season to 2019-20 season, which matches the
-commuting data. Tentatively, PR will be included, but I will need to
-consider impact on analyses.</p>
-<p>Quick exploration of the distributions of the proportion of
-cumulative ILI (p) for each week for each location and what I am calling
-an epidemic intensity unit (ei.unit) (p*log(p)) indicates the intrinsic
-bounds at zero for both and at one for the proportions. So, in
-downstream analyses it may be preferable to use the ei unit over the
-proportion. Taking the absolute value of the ei unit flips the direction
-about zero so that values are non-negative and have a similar
-directional interpretation to the aggregate epidemic intensity; that is,
-larger values correspond to more extreme / imbalanced values (???). But,
-I am unsure of this being the best way for sake of interpretation. It
-may be a little wacky to treat the small and large values similarly, and
-maybe the proportions are preferable.</p>
-</div>
-<div id="population" class="section level3">
-<h3>Population</h3>
-<p>The population estimates data roughly correspond to the population of
-a location at the midpoint (1 July) of the given year. This does not
-directly match up to the ILI data that have been transformed relative to
-seasonal totals where the season is set to begin at epiweek 40 of one
-year and ends at epiweek 39 of the following year. Note that this is
-more of a yearly designation rather than a true influenza season; a
-technical flu season may exclude summer months, May-ish through
-September-ish.</p>
-<p>To better align the the population estimate for a location at the
-midpoint of a given year to a specific influenza season, it may be
-useful to calculate simple averages between sequential years. For
-example, if I take the 2011 population estimate (July 1) and average it
-with the 2012 population estimate (July 1), then this may better
-correspond to the population size in December 2011 / January 2012,
-closer to the timing of the peaks of epidemics.</p>
-<p>The following script does that:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uX0FsaWduX1NlYXNvbi5SXCIsIGVjaG89VFJVRSlcbmBgYCJ9 -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_Population_Align_Season.R&quot;, echo=TRUE)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="commuting" class="section level3">
-<h3>Commuting</h3>
-<!-- The commuting data contains information about the commuter flow volume or flux between two locations. In this way, it it really data on the connectedness / adjacency of location pairs, a network. In this format, it is not easily combined or aligned with the ILI data. Sure there may be some network analyses or compartmental modeling analyses that we could perform to use the data in its original format, but, here, I only want to do some simple analyses relating the ILI epidemic intensity. A rudimentary approach could be to include all origins and destinations and their flows as separate variables or features, e.g., number of incoming commuters from Georgia. However, this may present a few problems: (1) there will be many implicit "zeros" where location pairs have no commuters; (2) there will be many many variables (52 incoming + 52 outgoing?); (3) this would not allow for a more "generalized" interpretation as all features are specific to single locations. So, another approach is desirable. The simplest way that I can think to initially approach this analysis is to aggregate the commuter flows in three ways: (1) internal commutes where origins and destinations are the same; (2) all incoming / inflow commuters for a specific destination location; (3) all outgoing / outflow commuters for a specific origin location. In this way, we will have features corresponding to local population mixing (internal), potential importations (incoming), and potential "foreign" exposures (outgoing). This is still rather rudimentary, but it will work for this preliminary analysis.   -->
-<!-- One last thing to consider is the scale of the data. As I am hoping to analyze this data alongside the population size data, the counts of commuter volume may be too correlated with the population size; that is, large counts of population size will correspond to large numbers of commuters. To remove this relationship, I need to account for the population sizes. Another simple approach may be to compute the proportions of commuters for each category. Though, this may force us to drop one of the three categories. (idk how to best describe this loss of a degree of freedom, linear combination; if they're not internal or outgoing, then they must be incoming?) So, another simple approach could be to calculate the proportions of commuters that are incoming (foreign, bad word choice but it works) or outgoing (expats, bad word choice but it works). Then, I could treat the internal commuters a little differently. This is a little challenging to decide on. My initial thoughts were to just to calculate the proportion of the total population that is an internal commuter. Part of me wants to consider the number of counties as well, though.  -->
-<!-- I went back to the original processing script where the data were aggregated to the state level and created a variable categorizing the flow type as either intracounty, intrastate (but not intracounty), interstate, and international. With this new level of aggregation, I can now calculate the proportions of workers in a focal resident location who are (1) outgoing (expats), (2) incoming (foreign), and (3) commuting within the state between counties. I realized that it may be preferable to exclude the workers who work in the same county as they reside and having an additional category would allow me to use the simple proportions. Though, this may introduce a bias according to the number of counties and their relative size (Eastern US has more and smaller counties than Western US). I'm just going to rock with this as is for now and think more on how to control later (maybe somehow take the distance of the flow into consideration). -->
-<!-- The following script aggregates the commuting data:   -->
-<!-- ```{r} -->
-<!-- source("./02-Scripts/01-Data-Wrangling/process_Data_ACS_Aggregate_Flows.R", echo=TRUE) -->
-<!-- ``` -->
-<!-- Maybe in the future, I can bridge the gap between the two aforementioned approaches, such as with features corresponding to the specific flows within and among different regions.  -->
-</div>
-</div>
-<div id="finalize-dataset" class="section level2">
-<h2>Finalize Dataset</h2>
-<p>The following script merges the epidemic intensity dataset, the
-population dataset, and the commuting dataset. Also, all three separate
-and the newly merged dataset are packaged (saved) together.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9GaW5hbF9EYXRhc2V0LlJcIiwgZWNobz1UUlVFKVxuYGBgIn0= -->
-<pre class="r"><code>source(&quot;./02-Scripts/01-Data-Wrangling/process_Data_Final_Dataset.R&quot;, echo=TRUE)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="analysis-variation-in-influenza-like-illness-epidemic-intensity-against-population-size-and-commuting-patterns" class="section level2">
-<h2>Analysis: Variation in Influenza-like Illness Epidemic Intensity
-against Population Size and Commuting Patterns</h2>
-<p>Now, that the data have been managed and set up for this analysis, we
-can look at the data more closely and set up some hypothesis tests.</p>
-<div id="data-presentation-visualization" class="section level3">
-<h3>Data Presentation / Visualization</h3>
-<p>We can first create some nice figures to show the data.</p>
 <div id="epidemic-curves-heatmap" class="section level4">
 <h4>Epidemic Curves Heatmap</h4>
 <p>The following script creates a heatmap to represent the ILI epidemic
@@ -1986,67 +2080,159 @@ curves, or rather the proportions of cumulative ILI cases for each
 season, for each location across the data time frame:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0lMSV9FcGlkZW1pY19DdXJ2ZXNfSGVhdG1hcC5SXCIsIGVjaG89VFJVRSlcbmBgYCJ9 -->
-<pre class="r"><code>source(&quot;./02-Scripts/03-Visualization/generate_Figure_ILI_Epidemic_Curves_Heatmap.R&quot;, echo=TRUE)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF6TFZacGMzVmhiR2w2WVhScGIyNHZaMlZ1WlhKaGRHVmZSbWxuZFhKbFgwbE1TVjlGY0dsa1pXMXBZMTlEZFhKMlpYTmZTR1ZoZEcxaGNDNVNYRndzSUdWamFHODlWRkpWUlNsY2JtQmdZRnh1WUdCZ0luMD0gLS0+XG5cbmBgYHJcbmBgYHJcbnNvdXJjZShcXC4vMDItU2NyaXB0cy8wMy1WaXN1YWxpemF0aW9uL2dlbmVyYXRlX0ZpZ3VyZV9JTElfRXBpZGVtaWNfQ3VydmVzX0hlYXRtYXAuUlxcLCBlY2hvPVRSVUUpXG5gYGBcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0lMSV9FcGlkZW1pY19DdXJ2ZXNfSGVhdG1hcC5SXFwsIGVjaG89VFJVRSlcbmBgYFxuYGBgIn0= -->
+<pre class="r"><code>```r
+source(\./02-Scripts/03-Visualization/generate_Figure_ILI_Epidemic_Curves_Heatmap.R\, echo=TRUE)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+#### Epidemic Intensities
+
+
+The following script creates a table showing the epidemic intensities for each location and each season:
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF6TFZacGMzVmhiR2w2WVhScGIyNHZaMlZ1WlhKaGRHVmZWR0ZpYkdWZlJYQnBaR1Z0YVdOZlNXNTBaVzV6YVhScFpYTXVVbHhjS1Z4dVlHQmdYRzVnWUdBaWZRPT0gLS0+XG5cbmBgYHJcbmBgYHJcbnNvdXJjZShcXC4vMDItU2NyaXB0cy8wMy1WaXN1YWxpemF0aW9uL2dlbmVyYXRlX1RhYmxlX0VwaWRlbWljX0ludGVuc2l0aWVzLlJcXClcbmBgYFxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfVGFibGVfRXBpZGVtaWNfSW50ZW5zaXRpZXMuUlxcKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+source(\./02-Scripts/03-Visualization/generate_Table_Epidemic_Intensities.R\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+##### Epidemic Intensity Scatter Plots against Covariates
+
+The following script creates a figure of four scatter plots, epidemic intensity vs population size, proportion of commutes that are international, interstate, and intrastate but between counties: 
+
+edited to proportions of internal (intracounty), short distance, and long distance, with added plots for ratios of short:internal and long:short.
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekF6TFZacGMzVmhiR2w2WVhScGIyNHZaMlZ1WlhKaGRHVmZSbWxuZFhKbFgwVndhV1JsYldsalgwbHVkR1Z1YzJsMGVWOVRZMkYwZEdWeWN5NVNYRndwWEc1Z1lHQmNibUJnWUNKOSAtLT5cblxuYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0VwaWRlbWljX0ludGVuc2l0eV9TY2F0dGVycy5SXFwpXG5gYGBcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0VwaWRlbWljX0ludGVuc2l0eV9TY2F0dGVycy5SXFwpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+source(\./02-Scripts/03-Visualization/generate_Figure_Epidemic_Intensity_Scatters.R\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+## Explaining Epidemic Intensity Variation
+
+For the sake of simplicity, we will only focus on the relationship between epidemic intensity, population size, and population mobility, similar to the scatter plots created in previous figure. 
+
+The following script fits a linear regression of epidemic intensity against the natural logartihm of population size, the proportion of commutes that are international, the proportion of commutes that are interstate, the proportion of commutes that are intrastate but intercounty, and an indicator for season:
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZR0JnY2x4dWMyOTFjbU5sS0Z4Y0xpOHdNaTFUWTNKcGNIUnpMekEwTFVGdVlXeDVjMmx6TDNKbFozSmxjM05mUlhCcFpHVnRhV05mU1c1MFpXNXphWFI1TGxKY1hDbGNibUJnWUZ4dVlHQmdJbjA9IC0tPlxuXG5gYGByXG5gYGByXG5zb3VyY2UoXFwuLzAyLVNjcmlwdHMvMDQtQW5hbHlzaXMvcmVncmVzc19FcGlkZW1pY19JbnRlbnNpdHkuUlxcKVxuYGBgXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc291cmNlKFxcLi8wMi1TY3JpcHRzLzA0LUFuYWx5c2lzL3JlZ3Jlc3NfRXBpZGVtaWNfSW50ZW5zaXR5LlJcXClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+source(\./02-Scripts/04-Analysis/regress_Epidemic_Intensity.R\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+The script also creates a summary table for the model coefficients. 
+
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVjMjkxY21ObEtGd2lMaTh3TWkxVFkzSnBjSFJ6THpBekxWWnBjM1ZoYkdsNllYUnBiMjR2WjJWdVpYSmhkR1ZmUm1sbmRYSmxjMTlUWTJGMGRHVnljMTkzWDBacGRITXVVbHdpS1Z4dWMyOTFjbU5sS0Z3aUxpOHdNaTFUWTNKcGNIUnpMekF6TFZacGMzVmhiR2w2WVhScGIyNHZaMlZ1WlhKaGRHVmZSbXhsZUhSaFlteGxjMTlEYjJWbWN5NVNYQ0lwWEc1Z1lHQWlmUT09IC0tPlxuXG5gYGByXG5zb3VyY2UoXCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9GaWd1cmVzX1NjYXR0ZXJzX3dfRml0cy5SXCIpXG5zb3VyY2UoXCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9GbGV4dGFibGVzX0NvZWZzLlJcIilcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlc19TY2F0dGVyc193X0ZpdHMuUlwiKVxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmxleHRhYmxlc19Db2Vmcy5SXCIpXG5gYGAifQ== --&gt;
+
+```r
+source(&quot;./02-Scripts/03-Visualization/generate_Figures_Scatters_w_Fits.R&quot;)
+source(&quot;./02-Scripts/03-Visualization/generate_Flextables_Coefs.R&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="epidemic-intensities" class="section level4">
-<h4>Epidemic Intensities</h4>
-<p>The following script creates a table showing the epidemic intensities
-for each location and each season:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfVGFibGVfRXBpZGVtaWNfSW50ZW5zaXRpZXMuUlwiKVxuYGBgIn0= -->
-<pre class="r"><code>source(&quot;./02-Scripts/03-Visualization/generate_Table_Epidemic_Intensities.R&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="epidemic-intensity-scatter-plots-against-covariates" class="section level5">
-<h5>Epidemic Intensity Scatter Plots against Covariates</h5>
-<p>The following script creates a figure of four scatter plots, epidemic
-intensity vs population size, proportion of commutes that are
-international, interstate, and intrastate but between counties:</p>
-<p>edited to proportions of internal (intracounty), short distance, and
-long distance, with added plots for ratios of short:internal and
-long:short.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0VwaWRlbWljX0ludGVuc2l0eV9TY2F0dGVycy5SXCIpXG5gYGAifQ== -->
-<pre class="r"><code>source(&quot;./02-Scripts/03-Visualization/generate_Figure_Epidemic_Intensity_Scatters.R&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-</div>
-</div>
-<div id="explaining-epidemic-intensity-variation" class="section level2">
-<h2>Explaining Epidemic Intensity Variation</h2>
-<p>For the sake of simplicity, we will only focus on the relationship
-between epidemic intensity, population size, and population mobility,
-similar to the scatter plots created in previous figure.</p>
-<p>The following script fits a linear regression of epidemic intensity
-against the natural logartihm of population size, the proportion of
-commutes that are international, the proportion of commutes that are
-interstate, the proportion of commutes that are intrastate but
-intercounty, and an indicator for season:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi8wMi1TY3JpcHRzLzA0LUFuYWx5c2lzL3JlZ3Jlc3NfRXBpZGVtaWNfSW50ZW5zaXR5LlJcIilcbmBgYCJ9 -->
-<pre class="r"><code>source(&quot;./02-Scripts/04-Analysis/regress_Epidemic_Intensity.R&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>The script also creates a summary table for the model
-coefficients.</p>
 <p>Now, I draft.</p>
 <!-- rnb-text-end -->
 </div>
 </div>
+</div>
+</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJlcHJvZHVjaWJpbGl0eSBOb3RlYm9vayINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KIyBQcm9qZWN0IE92ZXJ2aWV3DQoNClRoaXMgcmVwb3NpdG9yeSAvIGNvbGxlY3Rpb24gb2Ygc2NyaXB0cyBpcyBhIGNvbXBvbmVudCBvZiBDb2R5IERhaWxleSdzIGRpc3NlcnRhdGlvbiByZXNlYXJjaC4gQWx0b2dldGhlciwgdGhlIHNjb3BlIG9mIHRoaXMgZGlzc2VydGF0aW9uIHJlc2VhcmNoIHNwYW5zIHRoZSBzcGF0aWFsIGVwaWRlbWlvbG9neSBhbmQgZXZvbHV0aW9uIG9mIHNlYXNvbmFsIGluZmx1ZW56YSBpbiB0aGUgVW5pdGVkIFN0YXRlcyBmcm9tIDIwMTAgdG8gMjAyMC4gSGVyZSwgSSBmb2N1cyBvbiBhbiBpbml0aWFsIGV4cGxvcmF0aW9uIG9mIGluZmx1ZW56YS1saWtlIGlsbG5lc3MgaW5jaWRlbmNlIGFuZCBzZWFzb25hbCBlcGlkZW1pYyBpbnRlbnNpdHkuICAgDQogIA0KPiBIb3cgZG8geW91IGVhdCBhbiBlbGVwaGFudD8gIA0KPiAgIA0KPj4gT25lIGJpdGUgYXQgYSB0aW1lLiAgDQogIA0KIyMgRG9jdW1lbnQgT3ZlcnZpZXcNCg0KVGhpcyBkb2N1bWVudCBpcyBteSAicmVwcm9kdWNpYmlsaXR5IG5vdGVib29rIiwgYmFzaWNhbGx5LCBhIGRhdGEgYW5hbHlzdCdzIHZlcnNpb24gb2YgYSBsYWIgbm90ZWJvb2suIEl0IGNvbnRhaW5zIChob3BlZnVsbHkpIGFuIGVhc3ktdG8tZm9sbG93IGRlc2NyaXB0aW9uIG9mIGRhdGEgbWFuYWdlbWVudCBhbmQgYW5hbHlzZXMgd2l0aCBhc3NvY2lhdGVkIHNjcmlwdHMuIE15IGdvYWwgd2l0aCB0aGlzIGRvY3VtZW50IGlzIHRvIGVuc3VyZSByZXByb2R1Y2liaWxpdHkgaW4gbXkgcmVzZWFyY2guIEJlbG93LCBJIHdpbGwgZGVzY3JpYmUgbmVjZXNzYXJ5IHN0ZXBzIGluIG15IHdvcmtmbG93IHdoaWxlIHNvdXJjaW5nIHZhcmlvdXMgc2NyaXB0cyB0byBpbXBsZW1lbnQgLyBleGVjdXRlIHRoaXMgd29ya2Zsb3cuIE5vdGUgdGhhdCB0aGlzIGlzIHN1cHBsZW1lbnRhbCBpbmZvcm1hdGlvbiB0byB0aGUgdHJhZGl0aW9uYWwgc2NpZW50aWZpYyBtYW51c2NyaXB0ICh3aGljaCBpcyBmb3VuZCBpbiBhbm90aGVyIGRvY3VtZW50KSBhbmQgd2lsbCBpbmNsdWRlIG11Y2ggbW9yZSB0ZWNobmljYWwgZGV0YWlscyBhbmQgYW5hbHl0aWNhbCBkZWNpc2lvbnMgLyBjb21tZW50YXJ5LiANCg0KDQoNCiMgT2JqZWN0aXZlDQoNCiogVG8gZXhwbG9yZSB2YXJpYXRpb24gaW4gdGhlIGluY2lkZW5jZSBvZiBpbmZsdWVuemEtbGlrZSBpbGxuZXNzIGFtb25nIFVTQSBzdGF0ZXMsIERDLCBhbmQgUHVlcnRvIFJpY28NCg0KKiBUbyBhc3Nlc3MgdGhlIGltcGFjdCBvZiBwb3B1bGF0aW9uIHNpemUgYW5kIG1vYmlsaXR5IC8gaW50ZXJjb25uZWN0ZWRuZXNzIG9uIGVwaWRlbWljIGludGVuc2l0eQ0KDQoNCg0KIyBBcHByb2FjaA0KDQojIyBEYXRhIFByb2Nlc3NpbmcgLyBJbml0aWFsIENsZWFuaW5nDQoNCiMjIyBJbmZsdWVuemEtbGlrZSBJbGxuZXNzDQoNCklMSSBkYXRhIGZyb20gRmx1VmlldyBhbmQgRmxvcmlkYSBEZXBhcnRtZW50IG9mIFB1YmxpYyBIZWFsdGggd2VyZSBwcm9jZXNzZWQgdXNpbmcgZm9sbG93aW5nIHNjcmlwdDoNCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJLlIiKQ0KYGBgDQoNCg0KRGF0YSB3ZXJlIHN0b3JlZCBpbiBhIGRhdGFmcmFtZSB3aXRoIGVhY2ggcm93IGNvcnJlc3BvbmRpbmcgdG8gYSBzcGVjaWZpYyBsb2NhdGlvbiAoc3RhdGUpIGR1cmluZyBhIHNwZWNpZmljIHdlZWsgKGVwaSB3ZWVrIGFuZCBkYXRlKSB3aXRoIHRoZSByZXBvcnRlZCBjb3VudHMgb2YgSUxJIGFuZCB0b3RhbCBwYXRpZW50cyBmb3IgdGhhdCBsb2NhdGlvbiBkdXJpbmcgdGhhdCB3ZWVrLiANCg0KRGF0YSB3ZXJlIG9yaWdpbmFsbHkgc3BsaXQgZm9yIE5ldyBZb3JrIENpdHkgYW5kIE5ldyBZb3JrOyBJIHN1bW1lZCB0aG9zZSB0byBhIHNpbmdsZSBsb2NhdGlvbi4gQWxzbywgZGF0YSBmcm9tIEZsdVZpZXcgYXJlIG1pc3NpbmcgRmxvcmlkYSBkYXRhIGNvbXBsZXRlbHksIGJ1dCBMRCB3YXMgYWJsZSB0byBvYnRhaW4gZGF0YSBmcm9tIHRoZSBGbG9yaWRhIERlcGFydG1lbnQgb2YgUHVibGljIEhlYWx0aC4gVGhlIGRhdGEgZ3JlYXRseSBvdmVybGFwLCBidXQgdGhlIEZsb3JpZGEgZGF0YSBzZWVtcyB0byBiZSBtaXNzaW5nIHNvbWUgb2YgdGhlIGVhcmxpZXN0IGFuZCBsYXRlc3QgZGF0YSAoZWZmZWN0aXZlbHkgdHJpbW1pbmcgdGhlIGRhdGFzZXQgZnJvbSBib3RoIHRpbWVwb2ludHMgZW5kcykuIA0KDQoNCg0KDQoNCiMjIyBQb3B1bGF0aW9uIERhdGENCg0KTmV4dCwgd2UgcHJvY2VzcyBzb21lIHBvcHVsYXRpb24gZXN0aW1hdGVzIGZyb20gdGhlIGNlbnN1cy4gVGhpcyBpcyBhIHNpbXBsZSBzY3JpcHQgdG8gZXh0cmFjdCBhIHRpZHkgZGYgZnJvbSBhIHRhYmxlIGluIGFuIGV4Y2VsIHNwcmVhZHNoZWV0OiANCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfUG9wdWxhdGlvbi5SIiwgZWNobyA9IFQpDQpgYGANCg0KDQoNCiMjIyBNb2JpbGl0eSBEYXRhDQoNCjwhLS0gV29ya2VyIGNvbW11dGluZyBmbG93cyBmcm9tIHRoZSBBbWVyaWNhbiBDb21tdW5pdHkgU3VydmV5IGZvciBib3RoIDIwMTEtMjAxNSBhbmQgMjAxNi0yMDIwIGFyZSBkb3dubG9hZGVkIGFzIGV4Y2VsIHNwcmVhZHNoZWV0cywgdGhvdWdoIG5vdCBpbiBhIHRpZHkgZGF0YSBmb3JtYXQgKGUuZy4sIHRoZXJlIGlzIGV4dHJhIGZsdWZmIGF0IHRoZSB0b3AgYW5kIGJvdHRvbSBvZiB0aGUgZXhjZWwgdGFibGVzKS4gVGhlIEFDUyBkYXRhIGVzc2VudGlhbGx5IGNvbnRhaW4gZm91ciBtYWluIHZhcmlhYmxlczogYSBsb2NhdGlvbiBvZiByZXNpZGVuY2UsIGEgbG9jYXRpb24gb2Ygd29yaywgYSBwb2ludCBlc3RpbWF0ZSBvZiB0aGUgbnVtYmVyIG9mIHdvcmtlcnMgY29tbXV0aW5nIGJldHdlZW4gdGhlIHR3byBsb2NhdGlvbnMsIGFuZCBhbiBlc3RpbWF0ZSBvZiB1bmNlcnRhaW50eSAoaS5lLiwgbWFyZ2luIG9mIGVycm9yKSBmb3IgdGhlIHBvaW50IGVzdGltYXRlLiBUaGVzZSBkYXRhIGFyZSBhZ2dyZWdhdGVkIHRvIHRoZSBzdGF0ZSBsZXZlbCB0byBhbGlnbiB3aXRoIHRoZSBJTEkgZGF0YS4gSW4gYWdncmVnYXRpbmcgdGhlIGRhdGEgdG8gdGhlIHN0YXRlIGxldmVsLCB0aGUgbWVhc3VyZSBvZiB1bmNlcnRhaW50eSBpcyBsb3N0OyBpcyB0aGVyZSBhIHNpbXBsZSB3YXkgdG8gYWNjb3VudCBmb3IgZWFjaCBtYXJnaW4gb2YgZXJyb3IgaW4gYWdncmVnYXRlIGRhdGE/IEZvciBub3csIHdlIHdpbGwgZm9jdXMgb24gdGhlIGxvY2F0aW9ucyBhbmQgdGhlIHBvaW50IGVzdGltYXRlIGFuZCBwb3RlbnRpYWxseSByZXR1cm4gdG8gdGhlIHVuY2VydGFpbnR5IGxhdGVyIGZvciBzZW5zaXRpdml0eSBhbmFseXNlcy4gICAgLS0+DQoNCjwhLS0gVGhlIHByb2Nlc3Mgc2NyaXB0IGlzIHNpbXBsZSBlbm91Z2ggYXMgaXQganVzdCBsb2FkcyB0aGUgZGF0YSwgY2F0ZWdvcml6ZXMgdGhlIHR5cGUgb2YgY29tbXV0ZXIgZmxvdyAoaW50cmFjb3VudHksIGludHJhc3RhdGUsIGludGVyc3RhdGUsIGludGVybmF0aW9uYWwpLCBhZ2dyZWdhdGVzIHRvdGFscyB0byB0aGUgc3RhdGUgbGV2ZWwsIGNvbWJpbmVzIHRoZSBkYXRhIGZyb20gYm90aCB0aW1lIHJhbmdlcywgYW5kIHRoZW4gc2F2ZXMgYW4gLnJkcyBmaWxlLiBBZGRpdGlvbmFsbHksIHRoZSBkYXRhIGFyZSBleHBhbmRlZCB0byBoYXZlIGVudHJpZXMgZm9yIGFsbCBwb3NzaWJsZSBjb21iaW5hdGlvbnMgb2YgbG9jYXRpb25zOyB0aGlzIGFsbG93cyBtZSB0byBub3RlIHRoZSAidW5vYnNlcnZlZCIgZmxvd3MuICAgLS0+DQoNCjwhLS0gVGhlIHNjcmlwdCBpcyBzb3VyY2VkIHVzaW5nIHRoZSBmb2xsb3dpbmcgY29kZTogLS0+DQoNCjwhLS0gYGBge3J9IC0tPg0KPCEtLSBzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfQUNTLlIiLCBlY2hvID0gVCkgLS0+DQo8IS0tIGBgYCAtLT4NCg0KDQpGb3IgZWFzZSBhbmQgdG8gbm90IGR1cGxpY2F0ZSBjb2RlLCBJIGFtIGJvcnJvd2luZyB0aGUgY2xlYW4gZGF0YSBmcm9tIHRoZSBwcmV2aW91cyBhbmFseXNpcyAoZGFpbGV5Y28vTW9iaWxpdHktTW9kZWxzKS4gVGhpcyBjb21tdXRpbmcgZGF0YSBoYXMgdGhlIGNvbW11dGluZyBmbG93cyBiZXR3ZWVuIGNvdW50aWVzIGFzIHdlbGwgYXMgdGhlIGRpc3RhbmNlcyBvZiBlYWNoIGZsb3cgYWxyZWFkeSBjb21wdXRlZC4gU28sIHRoaXMgZGF0YSBpcyBtZXJnZWQgd2l0aCBhbm90aGVyIGRhdGFzZXQgZnJvbSB0aGUgcmVzdWx0cyBvZiBwcmV2aW91cyBhbmFseXNpcy4gVGhlIHJlc3VsdHMgaW5jbHVkZSB0aGUgZGlzdGFuY2UgdGhyZXNob2xkcyB0aGF0IHdlcmUgZGV0ZXJtaW5lZCBmcm9tIGdyYXZpdHkgbW9kZWwgZml0cy4gVGhlIGNvdW50eS10by1jb3VudHkgZmxvdyBkaXN0YW5jZXMgYXJlIGNvbXBhcmVkIHRvIHRoZSBkaXN0YW5jZSB0aHJlc2hvbGRzIGZvciBlYWNoIHJlZ2lvbiB0byBjYXRlZ29yaXplIGZsb3dzIGFzIGludGVybmFsICh3aXRoaW4gcmVzaWRlbnQgY291bnR5KSwgc2hvcnQgZGlzdGFuY2UgKGxlc3MgdGhhbiBvciBlcXVhbCB0byBkaXN0YW5jZSB0aHJlc2hvbGQpLCBhbmQgbG9uZyBkaXN0YW5jZSAoZ3JlYXRlciB0aGFuIGRpc3RhbmNlIHRocmVzaG9sZCkuIFRoZXNlIGNhdGVnb3JpZXMgYXJlIHRoZW4gdXNlZCB0byBzdW1tYXJpemUgdGhlIGRhdGEgYXQgdGhlIHN0YXRlIGxldmVsIGJ5IHNpbXBsZSBzdW1tYXRpb24uIFRoaXMgbGVhdmVzIGEgZGF0YXNldCB3aXRoIHR3byBlbnRyaWVzIGZvciBlYWNoIHN0YXRlICh0d28gdGltZSBwZXJpb2RzKSBhbmQgcXVhbnRpdGllcyBvZiB0aGUgbnVtYmVyIG9mIGNvbW11dGVzIG9mIGVhY2ggImZsb3cgdHlwZSIgKGFjY29yZGluZyB0byBkaXN0YW5jZXMpLiBGb2xsb3dpbmcsIHRoZXNlIHF1YW50aXRpZXMgYXJlIHRyYW5zZm9ybWVkIGluIHR3byB3YXlzLiBGaXJzdCwgSSB0YWtlIHNpbXBsZSByYXRpb3Mgb2YgdGhlIHRvdGFsIHNob3J0IGRpc3RhbmNlIGNvbW11dGVzIHRvIHRoZSB0b3RhbCBpbnRlcm5hbCBjb21tdXRlcyBmb3IgZWFjaCBzdGF0ZS4gU2ltaWxhcmx5LCBJIGNvbXB1dGUgYSByYXRpbyBvZiB0aGUgdG90YWwgbG9uZyBkaXN0YW5jZSBjb21tdXRlcyB0byB0aGUgdG90YWwgc2hvcnQgZGlzdGFuY2UgY29tbXV0ZXMuIFRoZXNlIHJhdGlvcyBJIHdpbGwgdXNlIGFzIHByZWRpY3RvcnMgLyBpbmRlcGVuZGVudCB2YXJpYWJsZXMuIA0KDQoNCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfQUNTX1JhdGlvc19BZ2dyZWdhdGUuUiIsIGVjaG89VCkNCmBgYA0KDQoNCg0KDQoNCg0KDQoNCg0KIyMgRGF0YSBFbmdpbmVlcmluZw0KDQojIyMgSUxJIA0KDQpGaXJzdCwgd2Ugd2lsbCBuZWVkIHRvIGZpbmQgdGhlIHNlYXNvbnMgZm9yIHdoaWNoIHdlIGhhdmUgY29tcGxldGUgZGF0YS4gVGhlbiBmb3IgZWFjaCBzZWFzb24gYW5kIGVhY2ggbG9jYXRpb24sIHdlIG5lZWQgdG8gc3VtIHRoZSBjb3VudHMgZm9yIGN1bXVsYXRpdmUgc2Vhc29uIHRvdGFscywgYW5kIHN1YnNlcXVlbnRseSB1c2UgdGhlbSB0byBjYWxjdWxhdGUgYSBwcm9wb3J0aW9uIG9mIGN1bXVsYXRpdmUgc2Vhc29uIElMSSB0b3RhbHMgb2JzZXJ2ZWQgaW4gYSBnaXZlbiB3ZWVrLiANCg0KVGhlc2UgcHJvcG9ydGlvbnMgYXJlIHVzZWQgdG8gY2FsY3VsYXRlIGVwaWRlbWljIGludGVuc2l0eSwgd2hpY2ggaXMgYSBzbGlnaHQgbW9kaWZpY2F0aW9uIG9mIFNoYW5ub24gZW50cm9weSBhY3Jvc3MgdGhlIHdlZWtzIG9mIGFuIGVwaWRlbWljIHNlYXNvbi4gV2hpbGUgU2hhbm5vbiBlbnRyb3B5IGlzIG1heGltaXplZCB3aXRoIGJhbGFuY2UgYWNyb3NzIHRoZSBjYXRlZ29yaWNhbCB2YXJpYWJsZSwgaS5lLiwgd2VlaywgZXBpZGVtaWMgaW50ZW5zaXR5IGlzIGludmVydGVkIHNvIHRoYXQgbGFyZ2VyIHZhbHVlcyBjb3JyZXNwb25kIHRvIG1vcmUgImludGVuc2UiIGVwaWRlbWljcyB0aGF0IGFyZSBmb2N1c2VkIGluIGEgc21hbGxlciB0aW1lIGZyYW1lIChsYXJnZXIgcGVha3MpLiBBZGRpdGlvbmFsbHksIGVwaWRlbWljIGludGVuc2l0eSBpcyByZXNjYWxlZCBzbyB0aGF0IGdsb2JhbCBtaW5pbXVtIGlzIHplcm8gYW5kIGdsb2JhbCBtYXhpbXVtIGlzIG9uZSAoZ2xvYmFsIG1lYW5pbmcgYWNyb3NzIGFsbCBzZWFzb25zIGFuZCByZWdpb25zIGluIHRoZSBkYXRhc2V0KS4gDQoNCkVhY2ggbmV3IHNlYXNvbiBiZWdpbnMgaW4gZXBpZGVtaW9sb2dpY2FsIHdlZWsgNDAgKH5PY3RvYmVyKS4gSUxJIGRhdGEgZm9yIHRoZSBNYXJpYW5hIElzbGFuZHMgYW5kIFZpcmdpbiBJc2xhbmRzIGFyZSBkcm9wcGVkIGhlcmUgYXMgdGhlIGZvcm1lciBpcyBtaXNzaW5nIGFsbCBJTEkgZGF0YSBhbmQgbmVpdGhlciBhcmUgaW4gdGhlIG1vYmlsaXR5IGRhdGEuIEZvciB0aGUgd2Vla3Mgd2l0aCB6ZXJvIGNvdW50cyBvZiBJTEksIHRoZSBpbmRpdmlkdWFsIHdlZWsncyBlcGlkZW1pYyBpbnRlbnNpdHkgdW5pdCAvIGVudHJvcHkgdW5pdCAoaS5lLiwgcCpsb2cocCkpIGlzIGluZGV0ZXJtaW5hdGUgKGxvZygwKSkgYW5kIHJlcGxhY2VkIHdpdGggYSB6ZXJvIHZhbHVlLiANCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJX0N1cnZlX1Byb3BvcnRpb25zLlIiLCBlY2hvPVRSVUUpDQpgYGANCg0KSW4gZXhhbWluaW5nIGRhdGEgbWlzc2luZ25lc3MsIEkgbm90ZWQgdGhhdCB0aGUgZGF0YSB2YWx1ZXMgZm9yIHRoZSAieWVhciIgYXJlIGluY29ycmVjdCBmb3Igd2VlayBzdGFydHMgYXQgZW5kIG9mIERlY2VtYmVyOyBmb3IgZXhhbXBsZSwgdGhlIHllYXIgZm9yIHRoZSB3ZWVrIHN0YXJ0IG9mIDMwIERlY2VtYmVyIDIwMTIgaXMgZW50ZXJlZCBhcyAyMDEzLiBQZXJoYXBzLCB0aGlzIGluZGljYXRlcyB0aGUgZmlyc3QgZXBpZGVtaW9sb2dpY2FsIHllYXIgc2ltaWxhciB0byBlcGl3ZWVrcz8gVGhpcyB3YXMgaW1wYWN0aW5nIGRhdGEgbWVyZ2luZywgc28gaXQgd2FzIHJlY29tcHV0ZWQgdG8gcmVmbGVjdCBjYWxlbmRhciB5ZWFyIG9mIHRoZSB3ZWVrIHN0YXJ0IGRhdGUuIFRoaXMgeWVhciB2YXJpYWJsZSBzaG91bGQgbm90IGJlIG5lZWRlZCBmb3IgZG93bnN0cmVhbSBhbmFseXNlcywgdGhvdWdoLCBidXQgaXQgd2FzIHVzZWQgZm9yIHNldHRpbmcgdXAgZGF0YSBtZXJnZXMgYW5kIGV4YW1pbmluZyBpbXBsaWNpdGx5IG1pc3NpbmcgZGF0YS4gDQoNCkRhdGEgYXJlIG1pc3NpbmcgZm9yIEZsb3JpZGEgMjAxMC0xMSBzZWFzb24gY29tcGxldGVseSwgUHVlcnRvIFJpY28gMjAxMC0xMSwgMjAxMS0xMiBzZWFzb25zIGNvbXBsZXRlbHkgYW5kIG5lYXJseSBjb21wbGV0ZWx5IGZvciAyMDEyLTEzIHNlYXNvbi4gVGhlIGRhdGFzZXQgaXMgdHJ1bmNhdGVkIGF0IGVuZCBvZiBNYXkgZm9yIHRoZSAyMDIwLTIxIHNlYXNvbiBmb3IgYWxsIGxvY2F0aW9uczsgbGlrZWx5IGFydGlmYWN0IG9mIGRvd25sb2FkIHRpbWUuIFNvLCB3ZSB3aWxsIGluY2x1ZGUgZGF0YSBzcGFubmluZyBmcm9tIDIwMTEtMTIgc2Vhc29uIHRvIDIwMTktMjAgc2Vhc29uLCB3aGljaCBtYXRjaGVzIHRoZSBjb21tdXRpbmcgZGF0YS4gVGVudGF0aXZlbHksIFBSIHdpbGwgYmUgaW5jbHVkZWQsIGJ1dCBJIHdpbGwgbmVlZCB0byBjb25zaWRlciBpbXBhY3Qgb24gYW5hbHlzZXMuIA0KDQpRdWljayBleHBsb3JhdGlvbiBvZiB0aGUgZGlzdHJpYnV0aW9ucyBvZiB0aGUgcHJvcG9ydGlvbiBvZiBjdW11bGF0aXZlIElMSSAocCkgZm9yIGVhY2ggd2VlayBmb3IgZWFjaCBsb2NhdGlvbiBhbmQgd2hhdCBJIGFtIGNhbGxpbmcgYW4gZXBpZGVtaWMgaW50ZW5zaXR5IHVuaXQgKGVpLnVuaXQpIChwKmxvZyhwKSkgaW5kaWNhdGVzIHRoZSBpbnRyaW5zaWMgYm91bmRzIGF0IHplcm8gZm9yIGJvdGggYW5kIGF0IG9uZSBmb3IgdGhlIHByb3BvcnRpb25zLiBTbywgaW4gZG93bnN0cmVhbSBhbmFseXNlcyBpdCBtYXkgYmUgcHJlZmVyYWJsZSB0byB1c2UgdGhlIGVpIHVuaXQgb3ZlciB0aGUgcHJvcG9ydGlvbi4gVGFraW5nIHRoZSBhYnNvbHV0ZSB2YWx1ZSBvZiB0aGUgZWkgdW5pdCBmbGlwcyB0aGUgZGlyZWN0aW9uIGFib3V0IHplcm8gc28gdGhhdCB2YWx1ZXMgYXJlIG5vbi1uZWdhdGl2ZSBhbmQgaGF2ZSBhIHNpbWlsYXIgZGlyZWN0aW9uYWwgaW50ZXJwcmV0YXRpb24gdG8gdGhlIGFnZ3JlZ2F0ZSBlcGlkZW1pYyBpbnRlbnNpdHk7IHRoYXQgaXMsIGxhcmdlciB2YWx1ZXMgY29ycmVzcG9uZCB0byBtb3JlIGV4dHJlbWUgLyBpbWJhbGFuY2VkIHZhbHVlcyAoPz8/KS4gQnV0LCBJIGFtIHVuc3VyZSBvZiB0aGlzIGJlaW5nIHRoZSBiZXN0IHdheSBmb3Igc2FrZSBvZiBpbnRlcnByZXRhdGlvbi4gSXQgbWF5IGJlIGEgbGl0dGxlIHdhY2t5IHRvIHRyZWF0IHRoZSBzbWFsbCBhbmQgbGFyZ2UgdmFsdWVzIHNpbWlsYXJseSwgYW5kIG1heWJlIHRoZSBwcm9wb3J0aW9ucyBhcmUgcHJlZmVyYWJsZS4gDQoNCg0KIyMjIFBvcHVsYXRpb24NCg0KVGhlIHBvcHVsYXRpb24gZXN0aW1hdGVzIGRhdGEgcm91Z2hseSBjb3JyZXNwb25kIHRvIHRoZSBwb3B1bGF0aW9uIG9mIGEgbG9jYXRpb24gYXQgdGhlIG1pZHBvaW50ICgxIEp1bHkpIG9mIHRoZSBnaXZlbiB5ZWFyLiBUaGlzIGRvZXMgbm90IGRpcmVjdGx5IG1hdGNoIHVwIHRvIHRoZSBJTEkgZGF0YSB0aGF0IGhhdmUgYmVlbiB0cmFuc2Zvcm1lZCByZWxhdGl2ZSB0byBzZWFzb25hbCB0b3RhbHMgd2hlcmUgdGhlIHNlYXNvbiBpcyBzZXQgdG8gYmVnaW4gYXQgZXBpd2VlayA0MCBvZiBvbmUgeWVhciBhbmQgZW5kcyBhdCBlcGl3ZWVrIDM5IG9mIHRoZSBmb2xsb3dpbmcgeWVhci4gTm90ZSB0aGF0IHRoaXMgaXMgbW9yZSBvZiBhIHllYXJseSBkZXNpZ25hdGlvbiByYXRoZXIgdGhhbiBhIHRydWUgaW5mbHVlbnphIHNlYXNvbjsgYSB0ZWNobmljYWwgZmx1IHNlYXNvbiBtYXkgZXhjbHVkZSBzdW1tZXIgbW9udGhzLCBNYXktaXNoIHRocm91Z2ggU2VwdGVtYmVyLWlzaC4gIA0KICANClRvIGJldHRlciBhbGlnbiB0aGUgdGhlIHBvcHVsYXRpb24gZXN0aW1hdGUgZm9yIGEgbG9jYXRpb24gYXQgdGhlIG1pZHBvaW50IG9mIGEgZ2l2ZW4geWVhciB0byBhIHNwZWNpZmljIGluZmx1ZW56YSBzZWFzb24sIGl0IG1heSBiZSB1c2VmdWwgdG8gY2FsY3VsYXRlIHNpbXBsZSBhdmVyYWdlcyBiZXR3ZWVuIHNlcXVlbnRpYWwgeWVhcnMuIEZvciBleGFtcGxlLCBpZiBJIHRha2UgdGhlIDIwMTEgcG9wdWxhdGlvbiBlc3RpbWF0ZSAoSnVseSAxKSBhbmQgYXZlcmFnZSBpdCB3aXRoIHRoZSAyMDEyIHBvcHVsYXRpb24gZXN0aW1hdGUgKEp1bHkgMSksIHRoZW4gdGhpcyBtYXkgYmV0dGVyIGNvcnJlc3BvbmQgdG8gdGhlIHBvcHVsYXRpb24gc2l6ZSBpbiBEZWNlbWJlciAyMDExIC8gSmFudWFyeSAyMDEyLCBjbG9zZXIgdG8gdGhlIHRpbWluZyBvZiB0aGUgcGVha3Mgb2YgZXBpZGVtaWNzLiANCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgZG9lcyB0aGF0Og0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uX0FsaWduX1NlYXNvbi5SIiwgZWNobz1UUlVFKQ0KYGBgDQoNCg0KDQoNCiMjIyBDb21tdXRpbmcNCg0KPCEtLSBUaGUgY29tbXV0aW5nIGRhdGEgY29udGFpbnMgaW5mb3JtYXRpb24gYWJvdXQgdGhlIGNvbW11dGVyIGZsb3cgdm9sdW1lIG9yIGZsdXggYmV0d2VlbiB0d28gbG9jYXRpb25zLiBJbiB0aGlzIHdheSwgaXQgaXQgcmVhbGx5IGRhdGEgb24gdGhlIGNvbm5lY3RlZG5lc3MgLyBhZGphY2VuY3kgb2YgbG9jYXRpb24gcGFpcnMsIGEgbmV0d29yay4gSW4gdGhpcyBmb3JtYXQsIGl0IGlzIG5vdCBlYXNpbHkgY29tYmluZWQgb3IgYWxpZ25lZCB3aXRoIHRoZSBJTEkgZGF0YS4gU3VyZSB0aGVyZSBtYXkgYmUgc29tZSBuZXR3b3JrIGFuYWx5c2VzIG9yIGNvbXBhcnRtZW50YWwgbW9kZWxpbmcgYW5hbHlzZXMgdGhhdCB3ZSBjb3VsZCBwZXJmb3JtIHRvIHVzZSB0aGUgZGF0YSBpbiBpdHMgb3JpZ2luYWwgZm9ybWF0LCBidXQsIGhlcmUsIEkgb25seSB3YW50IHRvIGRvIHNvbWUgc2ltcGxlIGFuYWx5c2VzIHJlbGF0aW5nIHRoZSBJTEkgZXBpZGVtaWMgaW50ZW5zaXR5LiBBIHJ1ZGltZW50YXJ5IGFwcHJvYWNoIGNvdWxkIGJlIHRvIGluY2x1ZGUgYWxsIG9yaWdpbnMgYW5kIGRlc3RpbmF0aW9ucyBhbmQgdGhlaXIgZmxvd3MgYXMgc2VwYXJhdGUgdmFyaWFibGVzIG9yIGZlYXR1cmVzLCBlLmcuLCBudW1iZXIgb2YgaW5jb21pbmcgY29tbXV0ZXJzIGZyb20gR2VvcmdpYS4gSG93ZXZlciwgdGhpcyBtYXkgcHJlc2VudCBhIGZldyBwcm9ibGVtczogKDEpIHRoZXJlIHdpbGwgYmUgbWFueSBpbXBsaWNpdCAiemVyb3MiIHdoZXJlIGxvY2F0aW9uIHBhaXJzIGhhdmUgbm8gY29tbXV0ZXJzOyAoMikgdGhlcmUgd2lsbCBiZSBtYW55IG1hbnkgdmFyaWFibGVzICg1MiBpbmNvbWluZyArIDUyIG91dGdvaW5nPyk7ICgzKSB0aGlzIHdvdWxkIG5vdCBhbGxvdyBmb3IgYSBtb3JlICJnZW5lcmFsaXplZCIgaW50ZXJwcmV0YXRpb24gYXMgYWxsIGZlYXR1cmVzIGFyZSBzcGVjaWZpYyB0byBzaW5nbGUgbG9jYXRpb25zLiBTbywgYW5vdGhlciBhcHByb2FjaCBpcyBkZXNpcmFibGUuIFRoZSBzaW1wbGVzdCB3YXkgdGhhdCBJIGNhbiB0aGluayB0byBpbml0aWFsbHkgYXBwcm9hY2ggdGhpcyBhbmFseXNpcyBpcyB0byBhZ2dyZWdhdGUgdGhlIGNvbW11dGVyIGZsb3dzIGluIHRocmVlIHdheXM6ICgxKSBpbnRlcm5hbCBjb21tdXRlcyB3aGVyZSBvcmlnaW5zIGFuZCBkZXN0aW5hdGlvbnMgYXJlIHRoZSBzYW1lOyAoMikgYWxsIGluY29taW5nIC8gaW5mbG93IGNvbW11dGVycyBmb3IgYSBzcGVjaWZpYyBkZXN0aW5hdGlvbiBsb2NhdGlvbjsgKDMpIGFsbCBvdXRnb2luZyAvIG91dGZsb3cgY29tbXV0ZXJzIGZvciBhIHNwZWNpZmljIG9yaWdpbiBsb2NhdGlvbi4gSW4gdGhpcyB3YXksIHdlIHdpbGwgaGF2ZSBmZWF0dXJlcyBjb3JyZXNwb25kaW5nIHRvIGxvY2FsIHBvcHVsYXRpb24gbWl4aW5nIChpbnRlcm5hbCksIHBvdGVudGlhbCBpbXBvcnRhdGlvbnMgKGluY29taW5nKSwgYW5kIHBvdGVudGlhbCAiZm9yZWlnbiIgZXhwb3N1cmVzIChvdXRnb2luZykuIFRoaXMgaXMgc3RpbGwgcmF0aGVyIHJ1ZGltZW50YXJ5LCBidXQgaXQgd2lsbCB3b3JrIGZvciB0aGlzIHByZWxpbWluYXJ5IGFuYWx5c2lzLiAgIC0tPg0KDQo8IS0tIE9uZSBsYXN0IHRoaW5nIHRvIGNvbnNpZGVyIGlzIHRoZSBzY2FsZSBvZiB0aGUgZGF0YS4gQXMgSSBhbSBob3BpbmcgdG8gYW5hbHl6ZSB0aGlzIGRhdGEgYWxvbmdzaWRlIHRoZSBwb3B1bGF0aW9uIHNpemUgZGF0YSwgdGhlIGNvdW50cyBvZiBjb21tdXRlciB2b2x1bWUgbWF5IGJlIHRvbyBjb3JyZWxhdGVkIHdpdGggdGhlIHBvcHVsYXRpb24gc2l6ZTsgdGhhdCBpcywgbGFyZ2UgY291bnRzIG9mIHBvcHVsYXRpb24gc2l6ZSB3aWxsIGNvcnJlc3BvbmQgdG8gbGFyZ2UgbnVtYmVycyBvZiBjb21tdXRlcnMuIFRvIHJlbW92ZSB0aGlzIHJlbGF0aW9uc2hpcCwgSSBuZWVkIHRvIGFjY291bnQgZm9yIHRoZSBwb3B1bGF0aW9uIHNpemVzLiBBbm90aGVyIHNpbXBsZSBhcHByb2FjaCBtYXkgYmUgdG8gY29tcHV0ZSB0aGUgcHJvcG9ydGlvbnMgb2YgY29tbXV0ZXJzIGZvciBlYWNoIGNhdGVnb3J5LiBUaG91Z2gsIHRoaXMgbWF5IGZvcmNlIHVzIHRvIGRyb3Agb25lIG9mIHRoZSB0aHJlZSBjYXRlZ29yaWVzLiAoaWRrIGhvdyB0byBiZXN0IGRlc2NyaWJlIHRoaXMgbG9zcyBvZiBhIGRlZ3JlZSBvZiBmcmVlZG9tLCBsaW5lYXIgY29tYmluYXRpb247IGlmIHRoZXkncmUgbm90IGludGVybmFsIG9yIG91dGdvaW5nLCB0aGVuIHRoZXkgbXVzdCBiZSBpbmNvbWluZz8pIFNvLCBhbm90aGVyIHNpbXBsZSBhcHByb2FjaCBjb3VsZCBiZSB0byBjYWxjdWxhdGUgdGhlIHByb3BvcnRpb25zIG9mIGNvbW11dGVycyB0aGF0IGFyZSBpbmNvbWluZyAoZm9yZWlnbiwgYmFkIHdvcmQgY2hvaWNlIGJ1dCBpdCB3b3Jrcykgb3Igb3V0Z29pbmcgKGV4cGF0cywgYmFkIHdvcmQgY2hvaWNlIGJ1dCBpdCB3b3JrcykuIFRoZW4sIEkgY291bGQgdHJlYXQgdGhlIGludGVybmFsIGNvbW11dGVycyBhIGxpdHRsZSBkaWZmZXJlbnRseS4gVGhpcyBpcyBhIGxpdHRsZSBjaGFsbGVuZ2luZyB0byBkZWNpZGUgb24uIE15IGluaXRpYWwgdGhvdWdodHMgd2VyZSB0byBqdXN0IHRvIGNhbGN1bGF0ZSB0aGUgcHJvcG9ydGlvbiBvZiB0aGUgdG90YWwgcG9wdWxhdGlvbiB0aGF0IGlzIGFuIGludGVybmFsIGNvbW11dGVyLiBQYXJ0IG9mIG1lIHdhbnRzIHRvIGNvbnNpZGVyIHRoZSBudW1iZXIgb2YgY291bnRpZXMgYXMgd2VsbCwgdGhvdWdoLiAgLS0+DQoNCjwhLS0gSSB3ZW50IGJhY2sgdG8gdGhlIG9yaWdpbmFsIHByb2Nlc3Npbmcgc2NyaXB0IHdoZXJlIHRoZSBkYXRhIHdlcmUgYWdncmVnYXRlZCB0byB0aGUgc3RhdGUgbGV2ZWwgYW5kIGNyZWF0ZWQgYSB2YXJpYWJsZSBjYXRlZ29yaXppbmcgdGhlIGZsb3cgdHlwZSBhcyBlaXRoZXIgaW50cmFjb3VudHksIGludHJhc3RhdGUgKGJ1dCBub3QgaW50cmFjb3VudHkpLCBpbnRlcnN0YXRlLCBhbmQgaW50ZXJuYXRpb25hbC4gV2l0aCB0aGlzIG5ldyBsZXZlbCBvZiBhZ2dyZWdhdGlvbiwgSSBjYW4gbm93IGNhbGN1bGF0ZSB0aGUgcHJvcG9ydGlvbnMgb2Ygd29ya2VycyBpbiBhIGZvY2FsIHJlc2lkZW50IGxvY2F0aW9uIHdobyBhcmUgKDEpIG91dGdvaW5nIChleHBhdHMpLCAoMikgaW5jb21pbmcgKGZvcmVpZ24pLCBhbmQgKDMpIGNvbW11dGluZyB3aXRoaW4gdGhlIHN0YXRlIGJldHdlZW4gY291bnRpZXMuIEkgcmVhbGl6ZWQgdGhhdCBpdCBtYXkgYmUgcHJlZmVyYWJsZSB0byBleGNsdWRlIHRoZSB3b3JrZXJzIHdobyB3b3JrIGluIHRoZSBzYW1lIGNvdW50eSBhcyB0aGV5IHJlc2lkZSBhbmQgaGF2aW5nIGFuIGFkZGl0aW9uYWwgY2F0ZWdvcnkgd291bGQgYWxsb3cgbWUgdG8gdXNlIHRoZSBzaW1wbGUgcHJvcG9ydGlvbnMuIFRob3VnaCwgdGhpcyBtYXkgaW50cm9kdWNlIGEgYmlhcyBhY2NvcmRpbmcgdG8gdGhlIG51bWJlciBvZiBjb3VudGllcyBhbmQgdGhlaXIgcmVsYXRpdmUgc2l6ZSAoRWFzdGVybiBVUyBoYXMgbW9yZSBhbmQgc21hbGxlciBjb3VudGllcyB0aGFuIFdlc3Rlcm4gVVMpLiBJJ20ganVzdCBnb2luZyB0byByb2NrIHdpdGggdGhpcyBhcyBpcyBmb3Igbm93IGFuZCB0aGluayBtb3JlIG9uIGhvdyB0byBjb250cm9sIGxhdGVyIChtYXliZSBzb21laG93IHRha2UgdGhlIGRpc3RhbmNlIG9mIHRoZSBmbG93IGludG8gY29uc2lkZXJhdGlvbikuIC0tPg0KDQo8IS0tIFRoZSBmb2xsb3dpbmcgc2NyaXB0IGFnZ3JlZ2F0ZXMgdGhlIGNvbW11dGluZyBkYXRhOiAgIC0tPg0KDQo8IS0tIGBgYHtyfSAtLT4NCjwhLS0gc291cmNlKCIuLzAyLVNjcmlwdHMvMDEtRGF0YS1XcmFuZ2xpbmcvcHJvY2Vzc19EYXRhX0FDU19BZ2dyZWdhdGVfRmxvd3MuUiIsIGVjaG89VFJVRSkgLS0+DQo8IS0tIGBgYCAtLT4NCg0KDQoNCjwhLS0gTWF5YmUgaW4gdGhlIGZ1dHVyZSwgSSBjYW4gYnJpZGdlIHRoZSBnYXAgYmV0d2VlbiB0aGUgdHdvIGFmb3JlbWVudGlvbmVkIGFwcHJvYWNoZXMsIHN1Y2ggYXMgd2l0aCBmZWF0dXJlcyBjb3JyZXNwb25kaW5nIHRvIHRoZSBzcGVjaWZpYyBmbG93cyB3aXRoaW4gYW5kIGFtb25nIGRpZmZlcmVudCByZWdpb25zLiAgLS0+DQoNCg0KIyMgRmluYWxpemUgRGF0YXNldA0KDQpUaGUgZm9sbG93aW5nIHNjcmlwdCBtZXJnZXMgdGhlIGVwaWRlbWljIGludGVuc2l0eSBkYXRhc2V0LCB0aGUgcG9wdWxhdGlvbiBkYXRhc2V0LCBhbmQgdGhlIGNvbW11dGluZyBkYXRhc2V0LiBBbHNvLCBhbGwgdGhyZWUgc2VwYXJhdGUgYW5kIHRoZSBuZXdseSBtZXJnZWQgZGF0YXNldCBhcmUgcGFja2FnZWQgKHNhdmVkKSB0b2dldGhlci4gDQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDEtRGF0YS1XcmFuZ2xpbmcvcHJvY2Vzc19EYXRhX0ZpbmFsX0RhdGFzZXQuUiIsIGVjaG89VFJVRSkNCmBgYA0KDQoNCg0KDQojIyBBbmFseXNpczogVmFyaWF0aW9uIGluIEluZmx1ZW56YS1saWtlIElsbG5lc3MgRXBpZGVtaWMgSW50ZW5zaXR5IGFnYWluc3QgUG9wdWxhdGlvbiBTaXplIGFuZCBDb21tdXRpbmcgUGF0dGVybnMNCg0KTm93LCB0aGF0IHRoZSBkYXRhIGhhdmUgYmVlbiBtYW5hZ2VkIGFuZCBzZXQgdXAgZm9yIHRoaXMgYW5hbHlzaXMsIHdlIGNhbiBsb29rIGF0IHRoZSBkYXRhIG1vcmUgY2xvc2VseSBhbmQgc2V0IHVwIHNvbWUgaHlwb3RoZXNpcyB0ZXN0cy4gDQoNCg0KDQojIyMgRGF0YSBQcmVzZW50YXRpb24gLyBWaXN1YWxpemF0aW9uDQoNCldlIGNhbiBmaXJzdCBjcmVhdGUgc29tZSBuaWNlIGZpZ3VyZXMgdG8gc2hvdyB0aGUgZGF0YS4gDQoNCiMjIyMgRXBpZGVtaWMgQ3VydmVzIEhlYXRtYXANCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgY3JlYXRlcyBhIGhlYXRtYXAgdG8gcmVwcmVzZW50IHRoZSBJTEkgZXBpZGVtaWMgY3VydmVzLCBvciByYXRoZXIgdGhlIHByb3BvcnRpb25zIG9mIGN1bXVsYXRpdmUgSUxJIGNhc2VzIGZvciBlYWNoIHNlYXNvbiwgZm9yIGVhY2ggbG9jYXRpb24gYWNyb3NzIHRoZSBkYXRhIHRpbWUgZnJhbWU6DQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9GaWd1cmVfSUxJX0VwaWRlbWljX0N1cnZlc19IZWF0bWFwLlIiLCBlY2hvPVRSVUUpDQpgYGANCg0KDQoNCiMjIyMgRXBpZGVtaWMgSW50ZW5zaXRpZXMNCg0KDQpUaGUgZm9sbG93aW5nIHNjcmlwdCBjcmVhdGVzIGEgdGFibGUgc2hvd2luZyB0aGUgZXBpZGVtaWMgaW50ZW5zaXRpZXMgZm9yIGVhY2ggbG9jYXRpb24gYW5kIGVhY2ggc2Vhc29uOg0KDQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9UYWJsZV9FcGlkZW1pY19JbnRlbnNpdGllcy5SIikNCmBgYA0KDQoNCiMjIyMjIEVwaWRlbWljIEludGVuc2l0eSBTY2F0dGVyIFBsb3RzIGFnYWluc3QgQ292YXJpYXRlcw0KDQpUaGUgZm9sbG93aW5nIHNjcmlwdCBjcmVhdGVzIGEgZmlndXJlIG9mIGZvdXIgc2NhdHRlciBwbG90cywgZXBpZGVtaWMgaW50ZW5zaXR5IHZzIHBvcHVsYXRpb24gc2l6ZSwgcHJvcG9ydGlvbiBvZiBjb21tdXRlcyB0aGF0IGFyZSBpbnRlcm5hdGlvbmFsLCBpbnRlcnN0YXRlLCBhbmQgaW50cmFzdGF0ZSBidXQgYmV0d2VlbiBjb3VudGllczogDQoNCmVkaXRlZCB0byBwcm9wb3J0aW9ucyBvZiBpbnRlcm5hbCAoaW50cmFjb3VudHkpLCBzaG9ydCBkaXN0YW5jZSwgYW5kIGxvbmcgZGlzdGFuY2UsIHdpdGggYWRkZWQgcGxvdHMgZm9yIHJhdGlvcyBvZiBzaG9ydDppbnRlcm5hbCBhbmQgbG9uZzpzaG9ydC4NCg0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0VwaWRlbWljX0ludGVuc2l0eV9TY2F0dGVycy5SIikNCmBgYA0KDQoNCg0KIyMgRXhwbGFpbmluZyBFcGlkZW1pYyBJbnRlbnNpdHkgVmFyaWF0aW9uDQoNCkZvciB0aGUgc2FrZSBvZiBzaW1wbGljaXR5LCB3ZSB3aWxsIG9ubHkgZm9jdXMgb24gdGhlIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIGVwaWRlbWljIGludGVuc2l0eSwgcG9wdWxhdGlvbiBzaXplLCBhbmQgcG9wdWxhdGlvbiBtb2JpbGl0eSwgc2ltaWxhciB0byB0aGUgc2NhdHRlciBwbG90cyBjcmVhdGVkIGluIHByZXZpb3VzIGZpZ3VyZS4gDQoNClRoZSBmb2xsb3dpbmcgc2NyaXB0IGZpdHMgYSBsaW5lYXIgcmVncmVzc2lvbiBvZiBlcGlkZW1pYyBpbnRlbnNpdHkgYWdhaW5zdCB0aGUgbmF0dXJhbCBsb2dhcnRpaG0gb2YgcG9wdWxhdGlvbiBzaXplLCB0aGUgcHJvcG9ydGlvbiBvZiBjb21tdXRlcyB0aGF0IGFyZSBpbnRlcm5hdGlvbmFsLCB0aGUgcHJvcG9ydGlvbiBvZiBjb21tdXRlcyB0aGF0IGFyZSBpbnRlcnN0YXRlLCB0aGUgcHJvcG9ydGlvbiBvZiBjb21tdXRlcyB0aGF0IGFyZSBpbnRyYXN0YXRlIGJ1dCBpbnRlcmNvdW50eSwgYW5kIGFuIGluZGljYXRvciBmb3Igc2Vhc29uOg0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzA0LUFuYWx5c2lzL3JlZ3Jlc3NfRXBpZGVtaWNfSW50ZW5zaXR5LlIiKQ0KYGBgDQoNClRoZSBzY3JpcHQgYWxzbyBjcmVhdGVzIGEgc3VtbWFyeSB0YWJsZSBmb3IgdGhlIG1vZGVsIGNvZWZmaWNpZW50cy4gDQoNCg0KDQpOb3csIEkgZHJhZnQuIA0KDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJlcHJvZHVjaWJpbGl0eSBOb3RlYm9vayINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KIyBQcm9qZWN0IE92ZXJ2aWV3DQoNClRoaXMgcmVwb3NpdG9yeSAvIGNvbGxlY3Rpb24gb2Ygc2NyaXB0cyBpcyBhIGNvbXBvbmVudCBvZiBDb2R5IERhaWxleSdzIGRpc3NlcnRhdGlvbiByZXNlYXJjaC4gQWx0b2dldGhlciwgdGhlIHNjb3BlIG9mIHRoaXMgZGlzc2VydGF0aW9uIHJlc2VhcmNoIHNwYW5zIHRoZSBzcGF0aWFsIGVwaWRlbWlvbG9neSBhbmQgZXZvbHV0aW9uIG9mIHNlYXNvbmFsIGluZmx1ZW56YSBpbiB0aGUgVW5pdGVkIFN0YXRlcyBmcm9tIDIwMTAgdG8gMjAyMC4gSGVyZSwgSSBmb2N1cyBvbiBhbiBpbml0aWFsIGV4cGxvcmF0aW9uIG9mIGluZmx1ZW56YS1saWtlIGlsbG5lc3MgaW5jaWRlbmNlIGFuZCBzZWFzb25hbCBlcGlkZW1pYyBpbnRlbnNpdHkuICAgDQogIA0KPiBIb3cgZG8geW91IGVhdCBhbiBlbGVwaGFudD8gIA0KPiAgIA0KPj4gT25lIGJpdGUgYXQgYSB0aW1lLiAgDQogIA0KIyMgRG9jdW1lbnQgT3ZlcnZpZXcNCg0KVGhpcyBkb2N1bWVudCBpcyBteSAicmVwcm9kdWNpYmlsaXR5IG5vdGVib29rIiwgYmFzaWNhbGx5LCBhIGRhdGEgYW5hbHlzdCdzIHZlcnNpb24gb2YgYSBsYWIgbm90ZWJvb2suIEl0IGNvbnRhaW5zIChob3BlZnVsbHkpIGFuIGVhc3ktdG8tZm9sbG93IGRlc2NyaXB0aW9uIG9mIGRhdGEgbWFuYWdlbWVudCBhbmQgYW5hbHlzZXMgd2l0aCBhc3NvY2lhdGVkIHNjcmlwdHMuIE15IGdvYWwgd2l0aCB0aGlzIGRvY3VtZW50IGlzIHRvIGVuc3VyZSByZXByb2R1Y2liaWxpdHkgaW4gbXkgcmVzZWFyY2guIEJlbG93LCBJIHdpbGwgZGVzY3JpYmUgbmVjZXNzYXJ5IHN0ZXBzIGluIG15IHdvcmtmbG93IHdoaWxlIHNvdXJjaW5nIHZhcmlvdXMgc2NyaXB0cyB0byBpbXBsZW1lbnQgLyBleGVjdXRlIHRoaXMgd29ya2Zsb3cuIE5vdGUgdGhhdCB0aGlzIGlzIHN1cHBsZW1lbnRhbCBpbmZvcm1hdGlvbiB0byB0aGUgdHJhZGl0aW9uYWwgc2NpZW50aWZpYyBtYW51c2NyaXB0ICh3aGljaCBpcyBmb3VuZCBpbiBhbm90aGVyIGRvY3VtZW50KSBhbmQgd2lsbCBpbmNsdWRlIG11Y2ggbW9yZSB0ZWNobmljYWwgZGV0YWlscyBhbmQgYW5hbHl0aWNhbCBkZWNpc2lvbnMgLyBjb21tZW50YXJ5LiANCg0KDQoNCiMgT2JqZWN0aXZlDQoNCiogVG8gZXhwbG9yZSB2YXJpYXRpb24gaW4gdGhlIGluY2lkZW5jZSBvZiBpbmZsdWVuemEtbGlrZSBpbGxuZXNzIGFtb25nIFVTQSBzdGF0ZXMsIERDLCBhbmQgUHVlcnRvIFJpY28NCg0KKiBUbyBhc3Nlc3MgdGhlIGltcGFjdCBvZiBwb3B1bGF0aW9uIHNpemUgYW5kIG1vYmlsaXR5IC8gaW50ZXJjb25uZWN0ZWRuZXNzIG9uIGVwaWRlbWljIGludGVuc2l0eQ0KDQoNCg0KIyBBcHByb2FjaA0KDQojIyBEYXRhIFByb2Nlc3NpbmcgLyBJbml0aWFsIENsZWFuaW5nDQoNCiMjIyBJbmZsdWVuemEtbGlrZSBJbGxuZXNzDQoNCklMSSBkYXRhIGZyb20gRmx1VmlldyBhbmQgRmxvcmlkYSBEZXBhcnRtZW50IG9mIFB1YmxpYyBIZWFsdGggd2VyZSBwcm9jZXNzZWQgdXNpbmcgZm9sbG93aW5nIHNjcmlwdDoNCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJLlIiKQ0KYGBgDQoNCg0KRGF0YSB3ZXJlIHN0b3JlZCBpbiBhIGRhdGFmcmFtZSB3aXRoIGVhY2ggcm93IGNvcnJlc3BvbmRpbmcgdG8gYSBzcGVjaWZpYyBsb2NhdGlvbiAoc3RhdGUpIGR1cmluZyBhIHNwZWNpZmljIHdlZWsgKGVwaSB3ZWVrIGFuZCBkYXRlKSB3aXRoIHRoZSByZXBvcnRlZCBjb3VudHMgb2YgSUxJIGFuZCB0b3RhbCBwYXRpZW50cyBmb3IgdGhhdCBsb2NhdGlvbiBkdXJpbmcgdGhhdCB3ZWVrLiANCg0KRGF0YSB3ZXJlIG9yaWdpbmFsbHkgc3BsaXQgZm9yIE5ldyBZb3JrIENpdHkgYW5kIE5ldyBZb3JrOyBJIHN1bW1lZCB0aG9zZSB0byBhIHNpbmdsZSBsb2NhdGlvbi4gQWxzbywgZGF0YSBmcm9tIEZsdVZpZXcgYXJlIG1pc3NpbmcgRmxvcmlkYSBkYXRhIGNvbXBsZXRlbHksIGJ1dCBMRCB3YXMgYWJsZSB0byBvYnRhaW4gZGF0YSBmcm9tIHRoZSBGbG9yaWRhIERlcGFydG1lbnQgb2YgUHVibGljIEhlYWx0aC4gVGhlIGRhdGEgZ3JlYXRseSBvdmVybGFwLCBidXQgdGhlIEZsb3JpZGEgZGF0YSBzZWVtcyB0byBiZSBtaXNzaW5nIHNvbWUgb2YgdGhlIGVhcmxpZXN0IGFuZCBsYXRlc3QgZGF0YSAoZWZmZWN0aXZlbHkgdHJpbW1pbmcgdGhlIGRhdGFzZXQgZnJvbSBib3RoIHRpbWVwb2ludHMgZW5kcykuIA0KDQoNCg0KDQoNCiMjIyBQb3B1bGF0aW9uIERhdGENCg0KTmV4dCwgd2UgcHJvY2VzcyBzb21lIHBvcHVsYXRpb24gZXN0aW1hdGVzIGZyb20gdGhlIGNlbnN1cy4gVGhpcyBpcyBhIHNpbXBsZSBzY3JpcHQgdG8gZXh0cmFjdCBhIHRpZHkgZGYgZnJvbSBhIHRhYmxlIGluIGFuIGV4Y2VsIHNwcmVhZHNoZWV0OiANCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfUG9wdWxhdGlvbi5SIiwgZWNobyA9IFQpDQpgYGANCg0KDQoNCiMjIyBNb2JpbGl0eSBEYXRhDQoNCjwhLS0gV29ya2VyIGNvbW11dGluZyBmbG93cyBmcm9tIHRoZSBBbWVyaWNhbiBDb21tdW5pdHkgU3VydmV5IGZvciBib3RoIDIwMTEtMjAxNSBhbmQgMjAxNi0yMDIwIGFyZSBkb3dubG9hZGVkIGFzIGV4Y2VsIHNwcmVhZHNoZWV0cywgdGhvdWdoIG5vdCBpbiBhIHRpZHkgZGF0YSBmb3JtYXQgKGUuZy4sIHRoZXJlIGlzIGV4dHJhIGZsdWZmIGF0IHRoZSB0b3AgYW5kIGJvdHRvbSBvZiB0aGUgZXhjZWwgdGFibGVzKS4gVGhlIEFDUyBkYXRhIGVzc2VudGlhbGx5IGNvbnRhaW4gZm91ciBtYWluIHZhcmlhYmxlczogYSBsb2NhdGlvbiBvZiByZXNpZGVuY2UsIGEgbG9jYXRpb24gb2Ygd29yaywgYSBwb2ludCBlc3RpbWF0ZSBvZiB0aGUgbnVtYmVyIG9mIHdvcmtlcnMgY29tbXV0aW5nIGJldHdlZW4gdGhlIHR3byBsb2NhdGlvbnMsIGFuZCBhbiBlc3RpbWF0ZSBvZiB1bmNlcnRhaW50eSAoaS5lLiwgbWFyZ2luIG9mIGVycm9yKSBmb3IgdGhlIHBvaW50IGVzdGltYXRlLiBUaGVzZSBkYXRhIGFyZSBhZ2dyZWdhdGVkIHRvIHRoZSBzdGF0ZSBsZXZlbCB0byBhbGlnbiB3aXRoIHRoZSBJTEkgZGF0YS4gSW4gYWdncmVnYXRpbmcgdGhlIGRhdGEgdG8gdGhlIHN0YXRlIGxldmVsLCB0aGUgbWVhc3VyZSBvZiB1bmNlcnRhaW50eSBpcyBsb3N0OyBpcyB0aGVyZSBhIHNpbXBsZSB3YXkgdG8gYWNjb3VudCBmb3IgZWFjaCBtYXJnaW4gb2YgZXJyb3IgaW4gYWdncmVnYXRlIGRhdGE/IEZvciBub3csIHdlIHdpbGwgZm9jdXMgb24gdGhlIGxvY2F0aW9ucyBhbmQgdGhlIHBvaW50IGVzdGltYXRlIGFuZCBwb3RlbnRpYWxseSByZXR1cm4gdG8gdGhlIHVuY2VydGFpbnR5IGxhdGVyIGZvciBzZW5zaXRpdml0eSBhbmFseXNlcy4gICAgLS0+DQoNCjwhLS0gVGhlIHByb2Nlc3Mgc2NyaXB0IGlzIHNpbXBsZSBlbm91Z2ggYXMgaXQganVzdCBsb2FkcyB0aGUgZGF0YSwgY2F0ZWdvcml6ZXMgdGhlIHR5cGUgb2YgY29tbXV0ZXIgZmxvdyAoaW50cmFjb3VudHksIGludHJhc3RhdGUsIGludGVyc3RhdGUsIGludGVybmF0aW9uYWwpLCBhZ2dyZWdhdGVzIHRvdGFscyB0byB0aGUgc3RhdGUgbGV2ZWwsIGNvbWJpbmVzIHRoZSBkYXRhIGZyb20gYm90aCB0aW1lIHJhbmdlcywgYW5kIHRoZW4gc2F2ZXMgYW4gLnJkcyBmaWxlLiBBZGRpdGlvbmFsbHksIHRoZSBkYXRhIGFyZSBleHBhbmRlZCB0byBoYXZlIGVudHJpZXMgZm9yIGFsbCBwb3NzaWJsZSBjb21iaW5hdGlvbnMgb2YgbG9jYXRpb25zOyB0aGlzIGFsbG93cyBtZSB0byBub3RlIHRoZSAidW5vYnNlcnZlZCIgZmxvd3MuICAgLS0+DQoNCjwhLS0gVGhlIHNjcmlwdCBpcyBzb3VyY2VkIHVzaW5nIHRoZSBmb2xsb3dpbmcgY29kZTogLS0+DQoNCjwhLS0gYGBge3J9IC0tPg0KPCEtLSBzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfQUNTLlIiLCBlY2hvID0gVCkgLS0+DQo8IS0tIGBgYCAtLT4NCg0KDQpGb3IgZWFzZSBhbmQgdG8gbm90IGR1cGxpY2F0ZSBjb2RlLCBJIGFtIGJvcnJvd2luZyB0aGUgY2xlYW4gZGF0YSBmcm9tIHRoZSBwcmV2aW91cyBhbmFseXNpcyAoZGFpbGV5Y28vTW9iaWxpdHktTW9kZWxzKS4gVGhpcyBjb21tdXRpbmcgZGF0YSBoYXMgdGhlIGNvbW11dGluZyBmbG93cyBiZXR3ZWVuIGNvdW50aWVzIGFzIHdlbGwgYXMgdGhlIGRpc3RhbmNlcyBvZiBlYWNoIGZsb3cgYWxyZWFkeSBjb21wdXRlZC4gU28sIHRoaXMgZGF0YSBpcyBtZXJnZWQgd2l0aCBhbm90aGVyIGRhdGFzZXQgZnJvbSB0aGUgcmVzdWx0cyBvZiBwcmV2aW91cyBhbmFseXNpcy4gVGhlIHJlc3VsdHMgaW5jbHVkZSB0aGUgZGlzdGFuY2UgdGhyZXNob2xkcyB0aGF0IHdlcmUgZGV0ZXJtaW5lZCBmcm9tIGdyYXZpdHkgbW9kZWwgZml0cy4gVGhlIGNvdW50eS10by1jb3VudHkgZmxvdyBkaXN0YW5jZXMgYXJlIGNvbXBhcmVkIHRvIHRoZSBkaXN0YW5jZSB0aHJlc2hvbGRzIGZvciBlYWNoIHJlZ2lvbiB0byBjYXRlZ29yaXplIGZsb3dzIGFzIGludGVybmFsICh3aXRoaW4gcmVzaWRlbnQgY291bnR5KSwgc2hvcnQgZGlzdGFuY2UgKGxlc3MgdGhhbiBvciBlcXVhbCB0byBkaXN0YW5jZSB0aHJlc2hvbGQpLCBhbmQgbG9uZyBkaXN0YW5jZSAoZ3JlYXRlciB0aGFuIGRpc3RhbmNlIHRocmVzaG9sZCkuIFRoZXNlIGNhdGVnb3JpZXMgYXJlIHRoZW4gdXNlZCB0byBzdW1tYXJpemUgdGhlIGRhdGEgYXQgdGhlIHN0YXRlIGxldmVsIGJ5IHNpbXBsZSBzdW1tYXRpb24uIFRoaXMgbGVhdmVzIGEgZGF0YXNldCB3aXRoIHR3byBlbnRyaWVzIGZvciBlYWNoIHN0YXRlICh0d28gdGltZSBwZXJpb2RzKSBhbmQgcXVhbnRpdGllcyBvZiB0aGUgbnVtYmVyIG9mIGNvbW11dGVzIG9mIGVhY2ggImZsb3cgdHlwZSIgKGFjY29yZGluZyB0byBkaXN0YW5jZXMpLiBGb2xsb3dpbmcsIHRoZXNlIHF1YW50aXRpZXMgYXJlIHRyYW5zZm9ybWVkIGluIHR3byB3YXlzLiBGaXJzdCwgSSB0YWtlIHNpbXBsZSByYXRpb3Mgb2YgdGhlIHRvdGFsIHNob3J0IGRpc3RhbmNlIGNvbW11dGVzIHRvIHRoZSB0b3RhbCBpbnRlcm5hbCBjb21tdXRlcyBmb3IgZWFjaCBzdGF0ZS4gU2ltaWxhcmx5LCBJIGNvbXB1dGUgYSByYXRpbyBvZiB0aGUgdG90YWwgbG9uZyBkaXN0YW5jZSBjb21tdXRlcyB0byB0aGUgdG90YWwgc2hvcnQgZGlzdGFuY2UgY29tbXV0ZXMuIFRoZXNlIHJhdGlvcyBJIHdpbGwgdXNlIGFzIHByZWRpY3RvcnMgLyBpbmRlcGVuZGVudCB2YXJpYWJsZXMuIA0KDQoNCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfQUNTX1JhdGlvc19BZ2dyZWdhdGUuUiIsIGVjaG89VCkNCmBgYA0KDQoNCg0KDQoNCg0KDQoNCg0KIyMgRGF0YSBFbmdpbmVlcmluZw0KDQojIyMgSUxJIA0KDQpGaXJzdCwgd2Ugd2lsbCBuZWVkIHRvIGZpbmQgdGhlIHNlYXNvbnMgZm9yIHdoaWNoIHdlIGhhdmUgY29tcGxldGUgZGF0YS4gVGhlbiBmb3IgZWFjaCBzZWFzb24gYW5kIGVhY2ggbG9jYXRpb24sIHdlIG5lZWQgdG8gc3VtIHRoZSBjb3VudHMgZm9yIGN1bXVsYXRpdmUgc2Vhc29uIHRvdGFscywgYW5kIHN1YnNlcXVlbnRseSB1c2UgdGhlbSB0byBjYWxjdWxhdGUgYSBwcm9wb3J0aW9uIG9mIGN1bXVsYXRpdmUgc2Vhc29uIElMSSB0b3RhbHMgb2JzZXJ2ZWQgaW4gYSBnaXZlbiB3ZWVrLiANCg0KVGhlc2UgcHJvcG9ydGlvbnMgYXJlIHVzZWQgdG8gY2FsY3VsYXRlIGVwaWRlbWljIGludGVuc2l0eSwgd2hpY2ggaXMgYSBzbGlnaHQgbW9kaWZpY2F0aW9uIG9mIFNoYW5ub24gZW50cm9weSBhY3Jvc3MgdGhlIHdlZWtzIG9mIGFuIGVwaWRlbWljIHNlYXNvbi4gV2hpbGUgU2hhbm5vbiBlbnRyb3B5IGlzIG1heGltaXplZCB3aXRoIGJhbGFuY2UgYWNyb3NzIHRoZSBjYXRlZ29yaWNhbCB2YXJpYWJsZSwgaS5lLiwgd2VlaywgZXBpZGVtaWMgaW50ZW5zaXR5IGlzIGludmVydGVkIHNvIHRoYXQgbGFyZ2VyIHZhbHVlcyBjb3JyZXNwb25kIHRvIG1vcmUgImludGVuc2UiIGVwaWRlbWljcyB0aGF0IGFyZSBmb2N1c2VkIGluIGEgc21hbGxlciB0aW1lIGZyYW1lIChsYXJnZXIgcGVha3MpLiBBZGRpdGlvbmFsbHksIGVwaWRlbWljIGludGVuc2l0eSBpcyByZXNjYWxlZCBzbyB0aGF0IGdsb2JhbCBtaW5pbXVtIGlzIHplcm8gYW5kIGdsb2JhbCBtYXhpbXVtIGlzIG9uZSAoZ2xvYmFsIG1lYW5pbmcgYWNyb3NzIGFsbCBzZWFzb25zIGFuZCByZWdpb25zIGluIHRoZSBkYXRhc2V0KS4gDQoNCkVhY2ggbmV3IHNlYXNvbiBiZWdpbnMgaW4gZXBpZGVtaW9sb2dpY2FsIHdlZWsgNDAgKH5PY3RvYmVyKS4gSUxJIGRhdGEgZm9yIHRoZSBNYXJpYW5hIElzbGFuZHMgYW5kIFZpcmdpbiBJc2xhbmRzIGFyZSBkcm9wcGVkIGhlcmUgYXMgdGhlIGZvcm1lciBpcyBtaXNzaW5nIGFsbCBJTEkgZGF0YSBhbmQgbmVpdGhlciBhcmUgaW4gdGhlIG1vYmlsaXR5IGRhdGEuIEZvciB0aGUgd2Vla3Mgd2l0aCB6ZXJvIGNvdW50cyBvZiBJTEksIHRoZSBpbmRpdmlkdWFsIHdlZWsncyBlcGlkZW1pYyBpbnRlbnNpdHkgdW5pdCAvIGVudHJvcHkgdW5pdCAoaS5lLiwgcCpsb2cocCkpIGlzIGluZGV0ZXJtaW5hdGUgKGxvZygwKSkgYW5kIHJlcGxhY2VkIHdpdGggYSB6ZXJvIHZhbHVlLiANCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMS1EYXRhLVdyYW5nbGluZy9wcm9jZXNzX0RhdGFfSUxJX0N1cnZlX1Byb3BvcnRpb25zLlIiLCBlY2hvPVRSVUUpDQpgYGANCg0KSW4gZXhhbWluaW5nIGRhdGEgbWlzc2luZ25lc3MsIEkgbm90ZWQgdGhhdCB0aGUgZGF0YSB2YWx1ZXMgZm9yIHRoZSAieWVhciIgYXJlIGluY29ycmVjdCBmb3Igd2VlayBzdGFydHMgYXQgZW5kIG9mIERlY2VtYmVyOyBmb3IgZXhhbXBsZSwgdGhlIHllYXIgZm9yIHRoZSB3ZWVrIHN0YXJ0IG9mIDMwIERlY2VtYmVyIDIwMTIgaXMgZW50ZXJlZCBhcyAyMDEzLiBQZXJoYXBzLCB0aGlzIGluZGljYXRlcyB0aGUgZmlyc3QgZXBpZGVtaW9sb2dpY2FsIHllYXIgc2ltaWxhciB0byBlcGl3ZWVrcz8gVGhpcyB3YXMgaW1wYWN0aW5nIGRhdGEgbWVyZ2luZywgc28gaXQgd2FzIHJlY29tcHV0ZWQgdG8gcmVmbGVjdCBjYWxlbmRhciB5ZWFyIG9mIHRoZSB3ZWVrIHN0YXJ0IGRhdGUuIFRoaXMgeWVhciB2YXJpYWJsZSBzaG91bGQgbm90IGJlIG5lZWRlZCBmb3IgZG93bnN0cmVhbSBhbmFseXNlcywgdGhvdWdoLCBidXQgaXQgd2FzIHVzZWQgZm9yIHNldHRpbmcgdXAgZGF0YSBtZXJnZXMgYW5kIGV4YW1pbmluZyBpbXBsaWNpdGx5IG1pc3NpbmcgZGF0YS4gDQoNCkRhdGEgYXJlIG1pc3NpbmcgZm9yIEZsb3JpZGEgMjAxMC0xMSBzZWFzb24gY29tcGxldGVseSwgUHVlcnRvIFJpY28gMjAxMC0xMSwgMjAxMS0xMiBzZWFzb25zIGNvbXBsZXRlbHkgYW5kIG5lYXJseSBjb21wbGV0ZWx5IGZvciAyMDEyLTEzIHNlYXNvbi4gVGhlIGRhdGFzZXQgaXMgdHJ1bmNhdGVkIGF0IGVuZCBvZiBNYXkgZm9yIHRoZSAyMDIwLTIxIHNlYXNvbiBmb3IgYWxsIGxvY2F0aW9uczsgbGlrZWx5IGFydGlmYWN0IG9mIGRvd25sb2FkIHRpbWUuIFNvLCB3ZSB3aWxsIGluY2x1ZGUgZGF0YSBzcGFubmluZyBmcm9tIDIwMTEtMTIgc2Vhc29uIHRvIDIwMTktMjAgc2Vhc29uLCB3aGljaCBtYXRjaGVzIHRoZSBjb21tdXRpbmcgZGF0YS4gVGVudGF0aXZlbHksIFBSIHdpbGwgYmUgaW5jbHVkZWQsIGJ1dCBJIHdpbGwgbmVlZCB0byBjb25zaWRlciBpbXBhY3Qgb24gYW5hbHlzZXMuIA0KDQpRdWljayBleHBsb3JhdGlvbiBvZiB0aGUgZGlzdHJpYnV0aW9ucyBvZiB0aGUgcHJvcG9ydGlvbiBvZiBjdW11bGF0aXZlIElMSSAocCkgZm9yIGVhY2ggd2VlayBmb3IgZWFjaCBsb2NhdGlvbiBhbmQgd2hhdCBJIGFtIGNhbGxpbmcgYW4gZXBpZGVtaWMgaW50ZW5zaXR5IHVuaXQgKGVpLnVuaXQpIChwKmxvZyhwKSkgaW5kaWNhdGVzIHRoZSBpbnRyaW5zaWMgYm91bmRzIGF0IHplcm8gZm9yIGJvdGggYW5kIGF0IG9uZSBmb3IgdGhlIHByb3BvcnRpb25zLiBTbywgaW4gZG93bnN0cmVhbSBhbmFseXNlcyBpdCBtYXkgYmUgcHJlZmVyYWJsZSB0byB1c2UgdGhlIGVpIHVuaXQgb3ZlciB0aGUgcHJvcG9ydGlvbi4gVGFraW5nIHRoZSBhYnNvbHV0ZSB2YWx1ZSBvZiB0aGUgZWkgdW5pdCBmbGlwcyB0aGUgZGlyZWN0aW9uIGFib3V0IHplcm8gc28gdGhhdCB2YWx1ZXMgYXJlIG5vbi1uZWdhdGl2ZSBhbmQgaGF2ZSBhIHNpbWlsYXIgZGlyZWN0aW9uYWwgaW50ZXJwcmV0YXRpb24gdG8gdGhlIGFnZ3JlZ2F0ZSBlcGlkZW1pYyBpbnRlbnNpdHk7IHRoYXQgaXMsIGxhcmdlciB2YWx1ZXMgY29ycmVzcG9uZCB0byBtb3JlIGV4dHJlbWUgLyBpbWJhbGFuY2VkIHZhbHVlcyAoPz8/KS4gQnV0LCBJIGFtIHVuc3VyZSBvZiB0aGlzIGJlaW5nIHRoZSBiZXN0IHdheSBmb3Igc2FrZSBvZiBpbnRlcnByZXRhdGlvbi4gSXQgbWF5IGJlIGEgbGl0dGxlIHdhY2t5IHRvIHRyZWF0IHRoZSBzbWFsbCBhbmQgbGFyZ2UgdmFsdWVzIHNpbWlsYXJseSwgYW5kIG1heWJlIHRoZSBwcm9wb3J0aW9ucyBhcmUgcHJlZmVyYWJsZS4gDQoNCg0KIyMjIFBvcHVsYXRpb24NCg0KVGhlIHBvcHVsYXRpb24gZXN0aW1hdGVzIGRhdGEgcm91Z2hseSBjb3JyZXNwb25kIHRvIHRoZSBwb3B1bGF0aW9uIG9mIGEgbG9jYXRpb24gYXQgdGhlIG1pZHBvaW50ICgxIEp1bHkpIG9mIHRoZSBnaXZlbiB5ZWFyLiBUaGlzIGRvZXMgbm90IGRpcmVjdGx5IG1hdGNoIHVwIHRvIHRoZSBJTEkgZGF0YSB0aGF0IGhhdmUgYmVlbiB0cmFuc2Zvcm1lZCByZWxhdGl2ZSB0byBzZWFzb25hbCB0b3RhbHMgd2hlcmUgdGhlIHNlYXNvbiBpcyBzZXQgdG8gYmVnaW4gYXQgZXBpd2VlayA0MCBvZiBvbmUgeWVhciBhbmQgZW5kcyBhdCBlcGl3ZWVrIDM5IG9mIHRoZSBmb2xsb3dpbmcgeWVhci4gTm90ZSB0aGF0IHRoaXMgaXMgbW9yZSBvZiBhIHllYXJseSBkZXNpZ25hdGlvbiByYXRoZXIgdGhhbiBhIHRydWUgaW5mbHVlbnphIHNlYXNvbjsgYSB0ZWNobmljYWwgZmx1IHNlYXNvbiBtYXkgZXhjbHVkZSBzdW1tZXIgbW9udGhzLCBNYXktaXNoIHRocm91Z2ggU2VwdGVtYmVyLWlzaC4gIA0KICANClRvIGJldHRlciBhbGlnbiB0aGUgdGhlIHBvcHVsYXRpb24gZXN0aW1hdGUgZm9yIGEgbG9jYXRpb24gYXQgdGhlIG1pZHBvaW50IG9mIGEgZ2l2ZW4geWVhciB0byBhIHNwZWNpZmljIGluZmx1ZW56YSBzZWFzb24sIGl0IG1heSBiZSB1c2VmdWwgdG8gY2FsY3VsYXRlIHNpbXBsZSBhdmVyYWdlcyBiZXR3ZWVuIHNlcXVlbnRpYWwgeWVhcnMuIEZvciBleGFtcGxlLCBpZiBJIHRha2UgdGhlIDIwMTEgcG9wdWxhdGlvbiBlc3RpbWF0ZSAoSnVseSAxKSBhbmQgYXZlcmFnZSBpdCB3aXRoIHRoZSAyMDEyIHBvcHVsYXRpb24gZXN0aW1hdGUgKEp1bHkgMSksIHRoZW4gdGhpcyBtYXkgYmV0dGVyIGNvcnJlc3BvbmQgdG8gdGhlIHBvcHVsYXRpb24gc2l6ZSBpbiBEZWNlbWJlciAyMDExIC8gSmFudWFyeSAyMDEyLCBjbG9zZXIgdG8gdGhlIHRpbWluZyBvZiB0aGUgcGVha3Mgb2YgZXBpZGVtaWNzLiANCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgZG9lcyB0aGF0Og0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9Qb3B1bGF0aW9uX0FsaWduX1NlYXNvbi5SIiwgZWNobz1UUlVFKQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDEtRGF0YS1XcmFuZ2xpbmcvcHJvY2Vzc19EYXRhX1NwYXRpYWwuUiIsIGVjaG89VFJVRSkNCmBgYA0KDQoNCg0KDQojIyMgQ29tbXV0aW5nDQoNCjwhLS0gVGhlIGNvbW11dGluZyBkYXRhIGNvbnRhaW5zIGluZm9ybWF0aW9uIGFib3V0IHRoZSBjb21tdXRlciBmbG93IHZvbHVtZSBvciBmbHV4IGJldHdlZW4gdHdvIGxvY2F0aW9ucy4gSW4gdGhpcyB3YXksIGl0IGl0IHJlYWxseSBkYXRhIG9uIHRoZSBjb25uZWN0ZWRuZXNzIC8gYWRqYWNlbmN5IG9mIGxvY2F0aW9uIHBhaXJzLCBhIG5ldHdvcmsuIEluIHRoaXMgZm9ybWF0LCBpdCBpcyBub3QgZWFzaWx5IGNvbWJpbmVkIG9yIGFsaWduZWQgd2l0aCB0aGUgSUxJIGRhdGEuIFN1cmUgdGhlcmUgbWF5IGJlIHNvbWUgbmV0d29yayBhbmFseXNlcyBvciBjb21wYXJ0bWVudGFsIG1vZGVsaW5nIGFuYWx5c2VzIHRoYXQgd2UgY291bGQgcGVyZm9ybSB0byB1c2UgdGhlIGRhdGEgaW4gaXRzIG9yaWdpbmFsIGZvcm1hdCwgYnV0LCBoZXJlLCBJIG9ubHkgd2FudCB0byBkbyBzb21lIHNpbXBsZSBhbmFseXNlcyByZWxhdGluZyB0aGUgSUxJIGVwaWRlbWljIGludGVuc2l0eS4gQSBydWRpbWVudGFyeSBhcHByb2FjaCBjb3VsZCBiZSB0byBpbmNsdWRlIGFsbCBvcmlnaW5zIGFuZCBkZXN0aW5hdGlvbnMgYW5kIHRoZWlyIGZsb3dzIGFzIHNlcGFyYXRlIHZhcmlhYmxlcyBvciBmZWF0dXJlcywgZS5nLiwgbnVtYmVyIG9mIGluY29taW5nIGNvbW11dGVycyBmcm9tIEdlb3JnaWEuIEhvd2V2ZXIsIHRoaXMgbWF5IHByZXNlbnQgYSBmZXcgcHJvYmxlbXM6ICgxKSB0aGVyZSB3aWxsIGJlIG1hbnkgaW1wbGljaXQgInplcm9zIiB3aGVyZSBsb2NhdGlvbiBwYWlycyBoYXZlIG5vIGNvbW11dGVyczsgKDIpIHRoZXJlIHdpbGwgYmUgbWFueSBtYW55IHZhcmlhYmxlcyAoNTIgaW5jb21pbmcgKyA1MiBvdXRnb2luZz8pOyAoMykgdGhpcyB3b3VsZCBub3QgYWxsb3cgZm9yIGEgbW9yZSAiZ2VuZXJhbGl6ZWQiIGludGVycHJldGF0aW9uIGFzIGFsbCBmZWF0dXJlcyBhcmUgc3BlY2lmaWMgdG8gc2luZ2xlIGxvY2F0aW9ucy4gU28sIGFub3RoZXIgYXBwcm9hY2ggaXMgZGVzaXJhYmxlLiBUaGUgc2ltcGxlc3Qgd2F5IHRoYXQgSSBjYW4gdGhpbmsgdG8gaW5pdGlhbGx5IGFwcHJvYWNoIHRoaXMgYW5hbHlzaXMgaXMgdG8gYWdncmVnYXRlIHRoZSBjb21tdXRlciBmbG93cyBpbiB0aHJlZSB3YXlzOiAoMSkgaW50ZXJuYWwgY29tbXV0ZXMgd2hlcmUgb3JpZ2lucyBhbmQgZGVzdGluYXRpb25zIGFyZSB0aGUgc2FtZTsgKDIpIGFsbCBpbmNvbWluZyAvIGluZmxvdyBjb21tdXRlcnMgZm9yIGEgc3BlY2lmaWMgZGVzdGluYXRpb24gbG9jYXRpb247ICgzKSBhbGwgb3V0Z29pbmcgLyBvdXRmbG93IGNvbW11dGVycyBmb3IgYSBzcGVjaWZpYyBvcmlnaW4gbG9jYXRpb24uIEluIHRoaXMgd2F5LCB3ZSB3aWxsIGhhdmUgZmVhdHVyZXMgY29ycmVzcG9uZGluZyB0byBsb2NhbCBwb3B1bGF0aW9uIG1peGluZyAoaW50ZXJuYWwpLCBwb3RlbnRpYWwgaW1wb3J0YXRpb25zIChpbmNvbWluZyksIGFuZCBwb3RlbnRpYWwgImZvcmVpZ24iIGV4cG9zdXJlcyAob3V0Z29pbmcpLiBUaGlzIGlzIHN0aWxsIHJhdGhlciBydWRpbWVudGFyeSwgYnV0IGl0IHdpbGwgd29yayBmb3IgdGhpcyBwcmVsaW1pbmFyeSBhbmFseXNpcy4gICAtLT4NCg0KPCEtLSBPbmUgbGFzdCB0aGluZyB0byBjb25zaWRlciBpcyB0aGUgc2NhbGUgb2YgdGhlIGRhdGEuIEFzIEkgYW0gaG9waW5nIHRvIGFuYWx5emUgdGhpcyBkYXRhIGFsb25nc2lkZSB0aGUgcG9wdWxhdGlvbiBzaXplIGRhdGEsIHRoZSBjb3VudHMgb2YgY29tbXV0ZXIgdm9sdW1lIG1heSBiZSB0b28gY29ycmVsYXRlZCB3aXRoIHRoZSBwb3B1bGF0aW9uIHNpemU7IHRoYXQgaXMsIGxhcmdlIGNvdW50cyBvZiBwb3B1bGF0aW9uIHNpemUgd2lsbCBjb3JyZXNwb25kIHRvIGxhcmdlIG51bWJlcnMgb2YgY29tbXV0ZXJzLiBUbyByZW1vdmUgdGhpcyByZWxhdGlvbnNoaXAsIEkgbmVlZCB0byBhY2NvdW50IGZvciB0aGUgcG9wdWxhdGlvbiBzaXplcy4gQW5vdGhlciBzaW1wbGUgYXBwcm9hY2ggbWF5IGJlIHRvIGNvbXB1dGUgdGhlIHByb3BvcnRpb25zIG9mIGNvbW11dGVycyBmb3IgZWFjaCBjYXRlZ29yeS4gVGhvdWdoLCB0aGlzIG1heSBmb3JjZSB1cyB0byBkcm9wIG9uZSBvZiB0aGUgdGhyZWUgY2F0ZWdvcmllcy4gKGlkayBob3cgdG8gYmVzdCBkZXNjcmliZSB0aGlzIGxvc3Mgb2YgYSBkZWdyZWUgb2YgZnJlZWRvbSwgbGluZWFyIGNvbWJpbmF0aW9uOyBpZiB0aGV5J3JlIG5vdCBpbnRlcm5hbCBvciBvdXRnb2luZywgdGhlbiB0aGV5IG11c3QgYmUgaW5jb21pbmc/KSBTbywgYW5vdGhlciBzaW1wbGUgYXBwcm9hY2ggY291bGQgYmUgdG8gY2FsY3VsYXRlIHRoZSBwcm9wb3J0aW9ucyBvZiBjb21tdXRlcnMgdGhhdCBhcmUgaW5jb21pbmcgKGZvcmVpZ24sIGJhZCB3b3JkIGNob2ljZSBidXQgaXQgd29ya3MpIG9yIG91dGdvaW5nIChleHBhdHMsIGJhZCB3b3JkIGNob2ljZSBidXQgaXQgd29ya3MpLiBUaGVuLCBJIGNvdWxkIHRyZWF0IHRoZSBpbnRlcm5hbCBjb21tdXRlcnMgYSBsaXR0bGUgZGlmZmVyZW50bHkuIFRoaXMgaXMgYSBsaXR0bGUgY2hhbGxlbmdpbmcgdG8gZGVjaWRlIG9uLiBNeSBpbml0aWFsIHRob3VnaHRzIHdlcmUgdG8ganVzdCB0byBjYWxjdWxhdGUgdGhlIHByb3BvcnRpb24gb2YgdGhlIHRvdGFsIHBvcHVsYXRpb24gdGhhdCBpcyBhbiBpbnRlcm5hbCBjb21tdXRlci4gUGFydCBvZiBtZSB3YW50cyB0byBjb25zaWRlciB0aGUgbnVtYmVyIG9mIGNvdW50aWVzIGFzIHdlbGwsIHRob3VnaC4gIC0tPg0KDQo8IS0tIEkgd2VudCBiYWNrIHRvIHRoZSBvcmlnaW5hbCBwcm9jZXNzaW5nIHNjcmlwdCB3aGVyZSB0aGUgZGF0YSB3ZXJlIGFnZ3JlZ2F0ZWQgdG8gdGhlIHN0YXRlIGxldmVsIGFuZCBjcmVhdGVkIGEgdmFyaWFibGUgY2F0ZWdvcml6aW5nIHRoZSBmbG93IHR5cGUgYXMgZWl0aGVyIGludHJhY291bnR5LCBpbnRyYXN0YXRlIChidXQgbm90IGludHJhY291bnR5KSwgaW50ZXJzdGF0ZSwgYW5kIGludGVybmF0aW9uYWwuIFdpdGggdGhpcyBuZXcgbGV2ZWwgb2YgYWdncmVnYXRpb24sIEkgY2FuIG5vdyBjYWxjdWxhdGUgdGhlIHByb3BvcnRpb25zIG9mIHdvcmtlcnMgaW4gYSBmb2NhbCByZXNpZGVudCBsb2NhdGlvbiB3aG8gYXJlICgxKSBvdXRnb2luZyAoZXhwYXRzKSwgKDIpIGluY29taW5nIChmb3JlaWduKSwgYW5kICgzKSBjb21tdXRpbmcgd2l0aGluIHRoZSBzdGF0ZSBiZXR3ZWVuIGNvdW50aWVzLiBJIHJlYWxpemVkIHRoYXQgaXQgbWF5IGJlIHByZWZlcmFibGUgdG8gZXhjbHVkZSB0aGUgd29ya2VycyB3aG8gd29yayBpbiB0aGUgc2FtZSBjb3VudHkgYXMgdGhleSByZXNpZGUgYW5kIGhhdmluZyBhbiBhZGRpdGlvbmFsIGNhdGVnb3J5IHdvdWxkIGFsbG93IG1lIHRvIHVzZSB0aGUgc2ltcGxlIHByb3BvcnRpb25zLiBUaG91Z2gsIHRoaXMgbWF5IGludHJvZHVjZSBhIGJpYXMgYWNjb3JkaW5nIHRvIHRoZSBudW1iZXIgb2YgY291bnRpZXMgYW5kIHRoZWlyIHJlbGF0aXZlIHNpemUgKEVhc3Rlcm4gVVMgaGFzIG1vcmUgYW5kIHNtYWxsZXIgY291bnRpZXMgdGhhbiBXZXN0ZXJuIFVTKS4gSSdtIGp1c3QgZ29pbmcgdG8gcm9jayB3aXRoIHRoaXMgYXMgaXMgZm9yIG5vdyBhbmQgdGhpbmsgbW9yZSBvbiBob3cgdG8gY29udHJvbCBsYXRlciAobWF5YmUgc29tZWhvdyB0YWtlIHRoZSBkaXN0YW5jZSBvZiB0aGUgZmxvdyBpbnRvIGNvbnNpZGVyYXRpb24pLiAtLT4NCg0KPCEtLSBUaGUgZm9sbG93aW5nIHNjcmlwdCBhZ2dyZWdhdGVzIHRoZSBjb21tdXRpbmcgZGF0YTogICAtLT4NCg0KPCEtLSBgYGB7cn0gLS0+DQo8IS0tIHNvdXJjZSgiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9BQ1NfQWdncmVnYXRlX0Zsb3dzLlIiLCBlY2hvPVRSVUUpIC0tPg0KPCEtLSBgYGAgLS0+DQoNCg0KDQo8IS0tIE1heWJlIGluIHRoZSBmdXR1cmUsIEkgY2FuIGJyaWRnZSB0aGUgZ2FwIGJldHdlZW4gdGhlIHR3byBhZm9yZW1lbnRpb25lZCBhcHByb2FjaGVzLCBzdWNoIGFzIHdpdGggZmVhdHVyZXMgY29ycmVzcG9uZGluZyB0byB0aGUgc3BlY2lmaWMgZmxvd3Mgd2l0aGluIGFuZCBhbW9uZyBkaWZmZXJlbnQgcmVnaW9ucy4gIC0tPg0KDQoNCiMjIEZpbmFsaXplIERhdGFzZXQNCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgbWVyZ2VzIHRoZSBlcGlkZW1pYyBpbnRlbnNpdHkgZGF0YXNldCwgdGhlIHBvcHVsYXRpb24gZGF0YXNldCwgYW5kIHRoZSBjb21tdXRpbmcgZGF0YXNldC4gQWxzbywgYWxsIHRocmVlIHNlcGFyYXRlIGFuZCB0aGUgbmV3bHkgbWVyZ2VkIGRhdGFzZXQgYXJlIHBhY2thZ2VkIChzYXZlZCkgdG9nZXRoZXIuIA0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAxLURhdGEtV3JhbmdsaW5nL3Byb2Nlc3NfRGF0YV9GaW5hbF9EYXRhc2V0LlIiLCBlY2hvPVRSVUUpDQpgYGANCg0KDQoNCg0KIyMgQW5hbHlzaXM6IFZhcmlhdGlvbiBpbiBJbmZsdWVuemEtbGlrZSBJbGxuZXNzIEVwaWRlbWljIEludGVuc2l0eSBhZ2FpbnN0IFBvcHVsYXRpb24gU2l6ZSBhbmQgQ29tbXV0aW5nIFBhdHRlcm5zDQoNCk5vdywgdGhhdCB0aGUgZGF0YSBoYXZlIGJlZW4gbWFuYWdlZCBhbmQgc2V0IHVwIGZvciB0aGlzIGFuYWx5c2lzLCB3ZSBjYW4gbG9vayBhdCB0aGUgZGF0YSBtb3JlIGNsb3NlbHkgYW5kIHNldCB1cCBzb21lIGh5cG90aGVzaXMgdGVzdHMuIA0KDQoNCg0KIyMjIERhdGEgUHJlc2VudGF0aW9uIC8gVmlzdWFsaXphdGlvbg0KDQpXZSBjYW4gZmlyc3QgY3JlYXRlIHNvbWUgbmljZSBmaWd1cmVzIHRvIHNob3cgdGhlIGRhdGEuIA0KDQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9UYWJsZXNfU3VtbWFyeS5SIikNCmBgYA0KDQoNCg0KDQoNCiMjIyMgRXBpZGVtaWMgQ3VydmVzIEhlYXRtYXANCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgY3JlYXRlcyBhIGhlYXRtYXAgdG8gcmVwcmVzZW50IHRoZSBJTEkgZXBpZGVtaWMgY3VydmVzLCBvciByYXRoZXIgdGhlIHByb3BvcnRpb25zIG9mIGN1bXVsYXRpdmUgSUxJIGNhc2VzIGZvciBlYWNoIHNlYXNvbiwgZm9yIGVhY2ggbG9jYXRpb24gYWNyb3NzIHRoZSBkYXRhIHRpbWUgZnJhbWU6DQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9GaWd1cmVfSUxJX0VwaWRlbWljX0N1cnZlc19IZWF0bWFwLlIiLCBlY2hvPVRSVUUpDQpgYGANCg0KDQoNCiMjIyMgRXBpZGVtaWMgSW50ZW5zaXRpZXMNCg0KDQpUaGUgZm9sbG93aW5nIHNjcmlwdCBjcmVhdGVzIGEgdGFibGUgc2hvd2luZyB0aGUgZXBpZGVtaWMgaW50ZW5zaXRpZXMgZm9yIGVhY2ggbG9jYXRpb24gYW5kIGVhY2ggc2Vhc29uOg0KDQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9UYWJsZV9FcGlkZW1pY19JbnRlbnNpdGllcy5SIikNCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0lMSV9FcGlkZW1pY19JbnRlbnNpdHlfSGVhdG1hcC5SIikNCmBgYA0KDQoNCiMjIyMjIEVwaWRlbWljIEludGVuc2l0eSBTY2F0dGVyIFBsb3RzIGFnYWluc3QgQ292YXJpYXRlcw0KDQpUaGUgZm9sbG93aW5nIHNjcmlwdCBjcmVhdGVzIGEgZmlndXJlIG9mIGZvdXIgc2NhdHRlciBwbG90cywgZXBpZGVtaWMgaW50ZW5zaXR5IHZzIHBvcHVsYXRpb24gc2l6ZSwgcHJvcG9ydGlvbiBvZiBjb21tdXRlcyB0aGF0IGFyZSBpbnRlcm5hdGlvbmFsLCBpbnRlcnN0YXRlLCBhbmQgaW50cmFzdGF0ZSBidXQgYmV0d2VlbiBjb3VudGllczogDQoNCmVkaXRlZCB0byBwcm9wb3J0aW9ucyBvZiBpbnRlcm5hbCAoaW50cmFjb3VudHkpLCBzaG9ydCBkaXN0YW5jZSwgYW5kIGxvbmcgZGlzdGFuY2UsIHdpdGggYWRkZWQgcGxvdHMgZm9yIHJhdGlvcyBvZiBzaG9ydDppbnRlcm5hbCBhbmQgbG9uZzpzaG9ydC4NCg0KDQpgYGB7cn0NCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlX0VwaWRlbWljX0ludGVuc2l0eV9TY2F0dGVycy5SIikNCnNvdXJjZSgiLi8wMi1TY3JpcHRzLzAzLVZpc3VhbGl6YXRpb24vZ2VuZXJhdGVfRmlndXJlc19NYXBFSUNvbW11dGVzLlIiKQ0KYGBgDQoNCg0KDQojIyBFeHBsYWluaW5nIEVwaWRlbWljIEludGVuc2l0eSBWYXJpYXRpb24NCg0KRm9yIHRoZSBzYWtlIG9mIHNpbXBsaWNpdHksIHdlIHdpbGwgb25seSBmb2N1cyBvbiB0aGUgcmVsYXRpb25zaGlwIGJldHdlZW4gZXBpZGVtaWMgaW50ZW5zaXR5LCBwb3B1bGF0aW9uIHNpemUsIGFuZCBwb3B1bGF0aW9uIG1vYmlsaXR5LCBzaW1pbGFyIHRvIHRoZSBzY2F0dGVyIHBsb3RzIGNyZWF0ZWQgaW4gcHJldmlvdXMgZmlndXJlLiANCg0KVGhlIGZvbGxvd2luZyBzY3JpcHQgZml0cyBhIGxpbmVhciByZWdyZXNzaW9uIG9mIGVwaWRlbWljIGludGVuc2l0eSBhZ2FpbnN0IHRoZSBuYXR1cmFsIGxvZ2FydGlobSBvZiBwb3B1bGF0aW9uIHNpemUsIHRoZSBwcm9wb3J0aW9uIG9mIGNvbW11dGVzIHRoYXQgYXJlIGludGVybmF0aW9uYWwsIHRoZSBwcm9wb3J0aW9uIG9mIGNvbW11dGVzIHRoYXQgYXJlIGludGVyc3RhdGUsIHRoZSBwcm9wb3J0aW9uIG9mIGNvbW11dGVzIHRoYXQgYXJlIGludHJhc3RhdGUgYnV0IGludGVyY291bnR5LCBhbmQgYW4gaW5kaWNhdG9yIGZvciBzZWFzb246DQoNCmBgYHtyfQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDQtQW5hbHlzaXMvcmVncmVzc19FcGlkZW1pY19JbnRlbnNpdHkuUiIpDQpgYGANCg0KVGhlIHNjcmlwdCBhbHNvIGNyZWF0ZXMgYSBzdW1tYXJ5IHRhYmxlIGZvciB0aGUgbW9kZWwgY29lZmZpY2llbnRzLiANCg0KDQoNCg0KYGBge3J9DQpzb3VyY2UoIi4vMDItU2NyaXB0cy8wMy1WaXN1YWxpemF0aW9uL2dlbmVyYXRlX0ZpZ3VyZXNfU2NhdHRlcnNfd19GaXRzLlIiKQ0Kc291cmNlKCIuLzAyLVNjcmlwdHMvMDMtVmlzdWFsaXphdGlvbi9nZW5lcmF0ZV9GbGV4dGFibGVzX0NvZWZzLlIiKQ0KYGBgDQoNCg0KDQpOb3csIEkgZHJhZnQuIA0KDQoNCg==</div>
 
 
 
